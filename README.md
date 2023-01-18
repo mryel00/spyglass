@@ -35,3 +35,8 @@ On startup the following arguments are supported:
 | `-p`, `--port`        | Port where the server will listen for new incoming connections.                      | `8080`    |
 | `-r`, `--resolution`  | Resoultion of the captured frames. This argument expects the format <width>x<height> | `640x480` |
 | `-f`, `--fps`         | Framerate in frames per second (fps).                                                | `15`      |
+
+Starting the server without any argument is the same as
+```shell
+./spyglass.py -b 0.0.0.0 -p 8080 -r 640x480 -f 15
+```
