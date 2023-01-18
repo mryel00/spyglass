@@ -72,6 +72,22 @@ def resolution_type(arg_value, pat=re.compile(r"^\d+x\d+$")):
     return arg_value
 
 
+def parse_autofocus(arg_value):
+    if arg_value == 'manual':
+        return libcamera.controls.AfModeEnum.Manual
+    elif arg_value == 'continuous':
+        return libcamera.controls.AfModeEnum.Continuous
+    raise argparse.ArgumentTypeError("invalid value: manual or continuous expected.")
+
+
+def parse_autofocusspeed(arg_value):
+    if arg_value == 'normal':
+        return libcamera.controls.AfSpeedEnum.Normal
+    elif arg_value ==  'fast':
+        return libcamera.controls.AfSpeedEnum.Fast
+    raise argparse.ArgumentTypeError("invalid value: normal or fast expected.")
+
+
 parser = argparse.ArgumentParser(
     prog='Spyglass',
     description='Start a webserver for Picamera2 videostreams.'
@@ -80,15 +96,29 @@ parser.add_argument('-b', '--bindaddress', type=str, default='', help='Bind to a
 parser.add_argument('-p', '--port', type=int, default=8080, help='Bind to port for incoming connections')
 parser.add_argument('-r', '--resolution', type=resolution_type, default='640x480', help='Resolution of the images width x height')
 parser.add_argument('-f', '--fps', type=int, default=15, help='Frames per second to capture')
+parser.add_argument('-af', '--autofocus', type=str, default='continuous', choices=['manual', 'continuous'], help='Autofocus mode')
+parser.add_argument('-l', '--lensposition', type=float, default=0.0, help='Set focal distance. 0 for infinte focus, 0.5 for approximate 50cm. Only used with Autofocus manual')
+parser.add_argument('-s', '--autofocusspeed', type=str, default='normal', choices=['normal', 'fast'], help='Autofocus speed. Only used with Autofocus continuous')
 
 args = parser.parse_args()
 bind_address = args.bindaddress
 port = args.port
 width, height = split_resolution(args.resolution)
 fps = args.fps
+autofocus = parse_autofocus(args.autofocus)
+lensposition = args.lensposition
+autofocusspeed = parse_autofocusspeed(args.autofocusspeed)
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (width, height)}, controls={"FrameRate": (fps, fps), "AfMode": libcamera.controls.AfModeEnum.Continuous}))
+
+if 'AfMode' in picam2.camera_controls:
+    picam2.configure(picam2.create_video_configuration(main={"size": (width, height)}, controls={"FrameRate": fps,
+                                                                                                 "AfMode": autofocus,
+                                                                                                 "LensPosition": lensposition,
+                                                                                                 "AfSpeed": autofocusspeed}))
+else:
+    print("Attached camera does not support autofocus")
+    picam2.configure(picam2.create_video_configuration(main={"size": (width, height)}, controls={"FrameRate": fps}))
 output = StreamingOutput()
 picam2.start_recording(JpegEncoder(), FileOutput(output))
 
