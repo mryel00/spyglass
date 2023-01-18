@@ -5,6 +5,7 @@ import io
 import logging
 import re
 import socketserver
+import libcamera
 from http import server
 from threading import Condition
 
@@ -87,7 +88,7 @@ width, height = split_resolution(args.resolution)
 fps = args.fps
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (width, height)}, controls={"FrameRate": (fps, fps)}))
+picam2.configure(picam2.create_video_configuration(main={"size": (width, height)}, controls={"FrameRate": (fps, fps), "AfMode": libcamera.controls.AfModeEnum.Continuous}))
 output = StreamingOutput()
 picam2.start_recording(JpegEncoder(), FileOutput(output))
 
