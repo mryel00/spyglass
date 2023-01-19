@@ -40,3 +40,5 @@ Starting the server without any argument is the same as
 ```shell
 ./spyglass.py -b 0.0.0.0 -p 8080 -r 640x480 -f 15
 ```
+
+The stream can then be accessed at `http://<IP of the server>:8080/stream.mjpeg`
