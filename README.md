@@ -16,7 +16,7 @@ the [Raspberry Pi Camera Module 3](https://www.raspberrypi.com/products/camera-m
 
 The server can be started with
 ```shell
-./spyglass.py
+./run.py
 ```
 
 This will start the server with the following default configuration:
@@ -38,7 +38,7 @@ On startup the following arguments are supported:
 
 Starting the server without any argument is the same as
 ```shell
-./spyglass.py -b 0.0.0.0 -p 8080 -r 640x480 -f 15
+./run.py -b 0.0.0.0 -p 8080 -r 640x480 -f 15
 ```
 
 The stream can then be accessed at `http://<IP of the server>:8080/stream.mjpeg`
