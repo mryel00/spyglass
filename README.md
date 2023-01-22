@@ -30,6 +30,8 @@ This will start the server with the following default configuration:
 * Port: 8080
 * Resolution: 640x480
 * Framerate: 15fps
+* Stream URL: /stream
+* Snapshot URL: /snapshot
 
 ## Configuration
 
@@ -41,22 +43,24 @@ On startup the following arguments are supported:
 | `-p`, `--port`           | Port where the server will listen for new incoming connections.                                     | `8080`       |
 | `-r`, `--resolution`     | Resolution of the captured frames. This argument expects the format <width>x<height>                | `640x480`    |
 | `-f`, `--fps`            | Framerate in frames per second (fps).                                                               | `15`         |
+| `-st`, `--stream_url`    | Sets the URL for the mjpeg stream.                                                                  | `/stream`    |
+| `-sn`, `--snapshot_url`  | Sets the URL for snapshots (single frame of stream).                                                | `/snapshot`  |
 | `-af`, `--autofocus`     | Autofocus mode. Supported modes: `manual`, `continous`                                              | `continuous` |
 | `-l`, `--lensposition`   | Set focal distance. 0 for infinite focus, 0.5 for approximate 50cm. Only used with Autofocus manual | `0.0`        |
 | `-s`, `--autofocusspeed` | Autofocus speed. Supported values: `normal`, `fast`. Only used with Autofocus continuous            | `normal`     |
 
 Starting the server without any argument is the same as
 ```shell
-./run.py -b 0.0.0.0 -p 8080 -r 640x480 -f 15
+./run.py -b 0.0.0.0 -p 8080 -r 640x480 -f 15 -st \'/stream\' -sn \'/snapshot\' -af continous -l 0.0 -s normal
 ```
 
-The stream can then be accessed at `http://<IP of the server>:8080/stream.mjpeg`
+The stream can then be accessed at `http://<IP of the server>:8080/stream`
 
 ## Using Spyglass with Mainsail
 
 If you ant to use Spyglass as a webcam source for [Mainsail]() add a webcam with the following configuration:
-* URL Stream: `/webcam/stream.mjpg`
-* URL Snapshot: `/webcam/stream.mjpg`
+* URL Stream: `/webcam/stream`
+* URL Snapshot: `/webcam/snapshot`
 * Service: `V4L-MJPEG`
 
 ## Install as application
