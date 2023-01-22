@@ -30,7 +30,7 @@ def run_server(bind_address, port, output):
         snapshot_url = '/snapshot'
         
         def do_GET(self):
-            if self.path in [self.streamURL, self.snapshotURL]:
+            if self.path in [self.stream_url, self.snapshot_url]:
                 self.startStream(self.path)
             else:
                 self.send_error(404)
@@ -54,7 +54,7 @@ def run_server(bind_address, port, output):
                     self.end_headers()
                     self.wfile.write(frame)
                     self.wfile.write(b'\r\n')
-                    if url == self.snapshotURL:
+                    if url == self.snapshot_url:
                         return
             except Exception as e:
                 logging.warning(
