@@ -95,7 +95,7 @@ def get_parser():
         prog='spyglass',
         description='Start a webserver for Picamera2 videostreams.',
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-b', '--bindaddress', type=str, default='', help='Bind to address for incoming connections')
+    parser.add_argument('-b', '--bindaddress', type=str, default='0.0.0.0', help='Bind to address for incoming connections')
     parser.add_argument('-p', '--port', type=int, default=8080, help='Bind to port for incoming connections')
     parser.add_argument('-r', '--resolution', type=resolution_type, default='640x480',
                         help='Resolution of the images width x height')

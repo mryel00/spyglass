@@ -5,6 +5,7 @@ import logging
 import socketserver
 from http import server
 from threading import Condition
+from . import logger
 
 
 class StreamingOutput(io.BufferedIOBase):
@@ -52,6 +53,7 @@ def run_server(bind_address, port, output):
                 self.send_error(404)
                 self.end_headers()
 
+    logger.info("Server listening on http://%s:%d/stream.mjpg", bind_address, port)
     address = (bind_address, port)
     current_server = StreamingServer(address, StreamingHandler)
     current_server.serve_forever()
