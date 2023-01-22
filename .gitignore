@@ -53,3 +53,5 @@ cover/
 
 # JetBrains
 .idea/
+
+venv
