@@ -95,7 +95,8 @@ def get_parser():
         prog='spyglass',
         description='Start a webserver for Picamera2 videostreams.',
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-b', '--bindaddress', type=str, default='0.0.0.0', help='Bind to address for incoming connections')
+    parser.add_argument('-b', '--bindaddress', type=str, default='0.0.0.0', help='Bind to address for incoming '
+                                                                                 'connections')
     parser.add_argument('-p', '--port', type=int, default=8080, help='Bind to port for incoming connections')
     parser.add_argument('-r', '--resolution', type=resolution_type, default='640x480',
                         help='Resolution of the images width x height')
@@ -103,7 +104,7 @@ def get_parser():
     parser.add_argument('-af', '--autofocus', type=str, default='continuous', choices=['manual', 'continuous'],
                         help='Autofocus mode')
     parser.add_argument('-l', '--lensposition', type=float, default=0.0,
-                        help='Set focal distance. 0 for infinte focus, 0.5 for approximate 50cm. '
+                        help='Set focal distance. 0 for infinite focus, 0.5 for approximate 50cm. '
                              'Only used with Autofocus manual')
     parser.add_argument('-s', '--autofocusspeed', type=str, default='normal', choices=['normal', 'fast'],
                         help='Autofocus speed. Only used with Autofocus continuous')
