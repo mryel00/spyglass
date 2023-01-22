@@ -9,3 +9,4 @@ addopts = [
 pythonpath = [
   "."
 ]
+mock_use_standalone_module = true
