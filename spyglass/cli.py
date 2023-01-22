@@ -28,6 +28,8 @@ def main(args=None):
     bind_address = parsed_args.bindaddress
     port = parsed_args.port
     width, height = split_resolution(parsed_args.resolution)
+    stream_url = parsed_args.stream_url
+    snapshot_url = parsed_args.snapshot_url
     picam2 = init_camera(
         width,
         height,
@@ -40,7 +42,7 @@ def main(args=None):
     picam2.start_recording(JpegEncoder(), FileOutput(output))
 
     try:
-        run_server(bind_address, port, output)
+        run_server(bind_address, port, output, stream_url, snapshot_url)
     finally:
         picam2.stop_recording()
 
@@ -101,6 +103,10 @@ def get_parser():
     parser.add_argument('-r', '--resolution', type=resolution_type, default='640x480',
                         help='Resolution of the images width x height')
     parser.add_argument('-f', '--fps', type=int, default=15, help='Frames per second to capture')
+    parser.add_argument('-st', '--stream_url', type=str, default='/stream',
+                        help='Sets the URL for the mpjpeg stream')
+    parser.add_argument('-sn', '--snapshot_url', type=str, default='/snapshot',
+                        help='Sets the URL for snapshots (single frame of stream)')
     parser.add_argument('-af', '--autofocus', type=str, default='continuous', choices=['manual', 'continuous'],
                         help='Autofocus mode')
     parser.add_argument('-l', '--lensposition', type=float, default=0.0,
