@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: build and check
     runs-on: ubuntu-latest
 
     steps:
