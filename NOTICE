@@ -1,4 +1,9 @@
---- [picamera2](https://github.com/raspberrypi/picamera2)  ---
+Some portions of this application are based on example-code from
+picamera2:
+----
+This product uses 'picamera2' developed by Raspberry Pi
+(https://github.com/raspberrypi/picamera2).
+
 BSD 2-Clause License
 
 Copyright (c) 2021, Raspberry Pi
