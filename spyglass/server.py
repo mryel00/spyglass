@@ -27,7 +27,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/snapshot'):
     class StreamingHandler(server.BaseHTTPRequestHandler):        
         def do_GET(self):
-            if self.path in [self.stream_url, self.snapshot_url]:
+            if self.path in [stream_url, snapshot_url]:
                 self.send_response(200)
                 self.send_header('Age', 0)
                 self.send_header('Cache-Control', 'no-cache, private')
@@ -45,7 +45,7 @@ def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/
                         self.end_headers()
                         self.wfile.write(frame)
                         self.wfile.write(b'\r\n')
-                        if self.path == self.snapshot_url:
+                        if self.path == snapshot_url:
                             return
                 except Exception as e:
                     logging.warning(
