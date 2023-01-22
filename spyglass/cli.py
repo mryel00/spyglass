@@ -104,7 +104,7 @@ def get_parser():
                         help='Resolution of the images width x height')
     parser.add_argument('-f', '--fps', type=int, default=15, help='Frames per second to capture')
     parser.add_argument('-st', '--stream_url', type=str, default='/stream',
-                        help='Sets the URL for the mpjpeg stream')
+                        help='Sets the URL for the mjpeg stream')
     parser.add_argument('-sn', '--snapshot_url', type=str, default='/snapshot',
                         help='Sets the URL for snapshots (single frame of stream)')
     parser.add_argument('-af', '--autofocus', type=str, default='continuous', choices=['manual', 'continuous'],
