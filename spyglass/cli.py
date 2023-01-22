@@ -1,6 +1,6 @@
-"""cli entry point for hellocli.
+"""cli entry point for spyglass.
 
-Parse command line arguments in, invoke hello.
+Parse command line arguments in, invoke server.
 """
 import argparse
 import sys
