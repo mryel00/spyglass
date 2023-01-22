@@ -51,7 +51,7 @@ On startup the following arguments are supported:
 
 Starting the server without any argument is the same as
 ```shell
-./run.py -b 0.0.0.0 -p 8080 -r 640x480 -f 15 -st \'/stream\' -sn \'/snapshot\' -af continous -l 0.0 -s normal
+./run.py -b 0.0.0.0 -p 8080 -r 640x480 -f 15 -st '/stream' -sn '/snapshot' -af continous -l 0.0 -s normal
 ```
 
 The stream can then be accessed at `http://<IP of the server>:8080/stream`
