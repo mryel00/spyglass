@@ -9,7 +9,7 @@ import re
 from spyglass.camera import init_camera
 from spyglass.server import StreamingOutput
 from spyglass.server import run_server
-from picamera2.encoders import JpegEncoder
+from picamera2.encoders import MJPEGEncoder
 from picamera2.outputs import FileOutput
 
 
@@ -39,7 +39,7 @@ def main(args=None):
         parse_autofocus_speed(parsed_args.autofocusspeed))
 
     output = StreamingOutput()
-    picam2.start_recording(JpegEncoder(), FileOutput(output))
+    picam2.start_recording(MJPEGEncoder(), FileOutput(output))
 
     try:
         run_server(bind_address, port, output, stream_url, snapshot_url)
