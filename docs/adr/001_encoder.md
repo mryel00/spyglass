@@ -27,7 +27,7 @@ The Picamera2 library contains different encoders to capture video.
 We want to provide an mjpeg video stream and single still images (snapshots).
 
 This software aims at systems that will run additional tasks like 3D printers running Klipper,
-Mainsail etc. In addition we assume that only few clients will access the stream simultaneously.
+Mainsail etc.
 
 ## Options
 
@@ -40,8 +40,8 @@ We will use the `MJPEGEncoder` that is using the Raspberry Pi's hardware.
 
 ## Consequences
 
-* Following the documentation this encoder will consume less CPU than the software encoder
-* Too many simultaneous streams will put more load on the CPU than the software encoder.
+* Following the documentation and some experiments this encoder will consume less CPU than the software encoder.
+* This encoder is only available on Raspberry Pi hardware
 
 ## Useful information
 
