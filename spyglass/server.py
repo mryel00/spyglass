@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import io
+import re
 import logging
 import socketserver
 from http import server
@@ -24,13 +25,16 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/snapshot'):
+def run_server(bind_address, port, camera, output, stream_url='/stream', snapshot_url='/snapshot'):
     class StreamingHandler(server.BaseHTTPRequestHandler):        
         def do_GET(self):
             if self.path == stream_url:
                 self.start_streaming()
             elif self.path == snapshot_url:
                 self.send_snapshot()
+            elif self.process_control_path(self.path):
+                self.send_response(200)
+                self.end_headers()
             else:
                 self.send_error(404)
                 self.end_headers()
@@ -67,6 +71,17 @@ def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/
                 logging.warning(
                     'Removed client %s: %s',
                     self.client_address, str(e))
+
+        def process_control_path(self, path):
+            controls_dict = camera.camera_controls
+            for key in controls_dict.keys():
+                if re.match("/" + key + "=", path, re.I):
+                    control, value_type = path.split('=')
+                    value, type_str = value_type.split('?')
+                    type = eval(type_str)
+                    camera.set_controls({key: type(value)})
+                    return True
+            return False
 
         def send_default_headers(self):
             self.send_header('Age', 0)

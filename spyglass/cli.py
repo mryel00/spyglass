@@ -38,11 +38,13 @@ def main(args=None):
         parsed_args.lensposition,
         parse_autofocus_speed(parsed_args.autofocusspeed))
 
+    print('Available controls:\n'+str(picam2.camera_controls))
+
     output = StreamingOutput()
     picam2.start_recording(MJPEGEncoder(), FileOutput(output))
 
     try:
-        run_server(bind_address, port, output, stream_url, snapshot_url)
+        run_server(bind_address, port, picam2, output, stream_url, snapshot_url)
     finally:
         picam2.stop_recording()
 
