@@ -37,7 +37,8 @@ def main(args=None):
         parse_autofocus(parsed_args.autofocus),
         parsed_args.lensposition,
         parse_autofocus_speed(parsed_args.autofocusspeed),
-        parsed_args.flip)
+        parsed_args.upsidedown,
+        parsed_args.mirror)
 
     output = StreamingOutput()
     picam2.start_recording(MJPEGEncoder(), FileOutput(output))
@@ -115,8 +116,10 @@ def get_parser():
                              'Only used with Autofocus manual')
     parser.add_argument('-s', '--autofocusspeed', type=str, default='normal', choices=['normal', 'fast'],
                         help='Autofocus speed. Only used with Autofocus continuous')
-    parser.add_argument('-fl', '--flip', action='store_true',
-                        help='Flip the image horizontally')
+    parser.add_argument('-ud', '--upsidedown', action='store_true', 
+                        help='Mirror the image horizontally')
+    parser.add_argument('-mr', '--mirror', action='store_true', 
+                        help='Mirror the image vertically')
     return parser
 
 # endregion cli args
