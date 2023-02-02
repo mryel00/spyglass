@@ -16,4 +16,4 @@ indent_style = tab
 
 [*.py]
 indent_size = 4
-indent_style = 4
+indent_style = space
