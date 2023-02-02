@@ -10,7 +10,8 @@ def init_camera(
         lens_position: float,
         autofocus_speed: str,
         upsidedown=False,
-        mirror=False):
+        flip_horizontal=False,
+        flip_vertical=False):
     picam2 = Picamera2()
 
     controls = {'FrameRate': fps}
@@ -23,7 +24,7 @@ def init_camera(
     else:
         print('Attached camera does not support autofocus')
 
-    transform = libcamera.Transform(hflip=int(mirror), vflip=int(upsidedown))
+    transform = libcamera.Transform(hflip=int(flip_horizontal or upsidedown), vflip=int(flip_vertical or upsidedown))
 
     picam2.configure(picam2.create_video_configuration(main={'size': (width, height)}, controls=controls, transform=transform))
 
