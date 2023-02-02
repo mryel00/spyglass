@@ -39,7 +39,7 @@ def main(args=None):
         parse_autofocus_speed(parsed_args.autofocusspeed),
         parsed_args.upsidedown,
         parsed_args.flip_horizontal,
-        parsed_args.flip_horizontal)
+        parsed_args.flip_vertical)
 
     output = StreamingOutput()
     picam2.start_recording(MJPEGEncoder(), FileOutput(output))
