@@ -35,6 +35,14 @@ wrong_args_msg() {
 }
 
 ### Helper Funcs
+
+## Version of spyglass
+self_version() {
+    pushd "${BASE_SPY_PATH}" &> /dev/null
+    git describe --always --tags
+    popd &> /dev/null
+}
+
 check_py_version() {
     local version
     if [[ -n "${PY_BIN}" ]]; then
@@ -101,7 +109,7 @@ run_spyglass() {
 while getopts ":vhc:d" arg; do
     case "${arg}" in
         v )
-            echo -e "\ncrowsnest Version: $(self_version)\n"
+            echo -e "\nspyglass Version: $(self_version)\n"
             exit 0
         ;;
         h )
@@ -109,7 +117,6 @@ while getopts ":vhc:d" arg; do
             exit 0
         ;;
         c )
-            check_cfg "${OPTARG}"
             SPYGLASS_CFG="${OPTARG}"
         ;;
         d )
