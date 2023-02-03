@@ -39,14 +39,9 @@ uninstall: ## Uninstall Spyglass
 	@printf "\nRemoving spyglass launch script ...\n"
 	@sudo rm -f $(BIN_PATH)/spyglass
 
-
-
 update: ## Update Spyglass (via git Repository)
 	@git fetch && git pull
-
-
 
 help: ## Show this help
 	@printf "\nSpyglass Install Helper:\n"
 	@grep -E -h '\s##\s' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
-
