@@ -26,7 +26,7 @@ help_msg() {
     echo -e "spyglass - Picamera2 MJPG Streamer\nUsage:"
     echo -e "\t spyglass [Options]"
     echo -e "\n\t\t-h Prints this help."
-    echo -e "\n\t\t-c </path/to/configfile>\n\t\t\tPath to your webcam.conf\n"
+    echo -e "\n\t\t-c </path/to/configfile>\n\t\t\tPath to your webcam.conf"
     echo -e "\n\t\t-v Show spyglass version\n"
 }
 
