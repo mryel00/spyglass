@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+#### spyglass - Picamera2 MJPG Streamer
+####
+#### https://github.com/roamingthings/spyglass
+####
+#### This File is distributed under GPLv3
+####
+
+# shellcheck enable=require-variable-braces
+
+### Error Handling
+set -Eeou pipefail
+
+
+### Global Variables
+BASE_SPY_PATH="$(dirname "$(readlink -f "${0}")")"
+PY_BIN="$(command -v python)"
+SPYGLASS_CFG="${HOME}/printer_data/config/spyglass.conf"
+
+### Helper Messages
+debug_msg() {
+    printf "DEBUG: %s\n" "${1}"
+}
+
+help_msg() {
+    echo -e "spyglass - Picamera2 MJPG Streamer\nUsage:"
+    echo -e "\t spyglass [Options]"
+    echo -e "\n\t\t-h Prints this help."
+    echo -e "\n\t\t-c </path/to/configfile>\n\t\t\tPath to your spyglass.conf"
+    echo -e "\n\t\t-v Show spyglass version\n"
+}
+
+wrong_args_msg() {
+    echo -e "spyglass: Wrong Arguments!"
+    echo -e "\n\tTry: spyglass -h\n"
+}
+
+### Helper Funcs
+
+## Version of spyglass
+self_version() {
+    pushd "${BASE_SPY_PATH}" &> /dev/null
+    git describe --always --tags
+    popd &> /dev/null
+}
+
+check_py_version() {
+    local version
+    if [[ -n "${PY_BIN}" ]]; then
+        version=$("${PY_BIN}" -V | cut -d" " -f2 | cut -d"." -f1)
+    else
+        printf "ERROR: Python interpreter is not installed! [EXITING]\n"
+        exit 1
+    fi
+    if [[ -n "${version}" ]] && [[ "${version}" = "3" ]]; then
+        printf "INFO: Python interpreter Version %s found ... [OK]\n" "$("${PY_BIN}" -V)"
+    elif [[ -n "${version}" ]] && [[ "${version}" = "2" ]]; then
+        printf "ERROR: Python interpreter Version 3 is required! [EXITING]\n"
+        exit 1
+    fi
+}
+
+get_config() {
+    if [[ -n "${SPYGLASS_CFG}" ]] && [[ -f "${SPYGLASS_CFG}" ]]; then
+        printf "INFO: Configuration file found in %s\n" "${SPYGLASS_CFG}"
+        print_config
+        # shellcheck disable=SC1090
+        . "${SPYGLASS_CFG}"
+    else
+        printf "ERROR: No configuration file found in %s! [EXITING]\n" "${SPYGLASS_CFG}"
+        exit 1
+    fi
+}
+
+print_config() {
+    local prefix
+    prefix="\t\t"
+    printf "INFO: Print Configfile: '%s'\n" "${SPYGLASS_CFG}"
+    (sed '/^#.*/d;/./,$!d;/^$/d' | cut -d'#' -f1) < "${SPYGLASS_CFG}" | \
+    while read -r line; do
+        printf "%b%s\n" "${prefix}" "${line}"
+    done
+}
+
+run_spyglass() {
+    local bind_adress
+    # ensure default for NO_PROXY
+    [[ -n "${NO_PROXY}" ]] || NO_PROXY="true"
+
+    if [[ "${NO_PROXY}" != "true" ]]; then
+        bind_adress="127.0.0.1"
+    else
+        bind_adress="0.0.0.0"
+    fi
+
+    "${PY_BIN}" "$(dirname "${BASE_SPY_PATH}")/run.py" \
+    --bindaddress "${bind_adress}" \
+    --port "${HTTP_PORT:-8080}" \
+    --resolution "${RESOLUTION:-640x480}" \
+    --fps "${FPS:-15}" \
+    --stream_url "${STREAM_URL:-\/stream}" \
+    --snapshot_url "${SNAPSHOT_URL:-\/snapshot}" \
+    --autofocus "${AUTO_FOCUS:-continuous}" \
+    --lensposition "${FOCAL_DIST:-0.0}" \
+    --autofocusspeed "${AF_SPEED:-normal}"
+}
+
+#### MAIN
+## Parse Args
+while getopts ":vhc:d" arg; do
+    case "${arg}" in
+        v )
+            echo -e "\nspyglass Version: $(self_version)\n"
+            exit 0
+        ;;
+        h )
+            help_msg
+            exit 0
+        ;;
+        c )
+            SPYGLASS_CFG="${OPTARG}"
+        ;;
+        d )
+            set -x
+        ;;
+        \?)
+            wrong_args_msg
+            exit 1
+        ;;
+    esac
+done
+
+
+check_py_version
+get_config
+run_spyglass
+
+### Loop to keep running
+while true; do
+    sleep 1
+done
