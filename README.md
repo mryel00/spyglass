@@ -48,14 +48,14 @@ On startup the following arguments are supported:
 | `-f`, `--fps`            | Framerate in frames per second (fps).                                                               | `15`         |
 | `-st`, `--stream_url`    | Sets the URL for the mjpeg stream.                                                                  | `/stream`    |
 | `-sn`, `--snapshot_url`  | Sets the URL for snapshots (single frame of stream).                                                | `/snapshot`  |
-| `-af`, `--autofocus`     | Autofocus mode. Supported modes: `manual`, `continous`                                              | `continuous` |
+| `-af`, `--autofocus`     | Autofocus mode. Supported modes: `manual`, `continuous`                                              | `continuous` |
 | `-l`, `--lensposition`   | Set focal distance. 0 for infinite focus, 0.5 for approximate 50cm. Only used with Autofocus manual | `0.0`        |
 | `-s`, `--autofocusspeed` | Autofocus speed. Supported values: `normal`, `fast`. Only used with Autofocus continuous            | `normal`     |
 
 Starting the server without any argument is the same as
 
 ```shell
-./run.py -b 0.0.0.0 -p 8080 -r 640x480 -f 15 -st '/stream' -sn '/snapshot' -af continous -l 0.0 -s normal
+./run.py -b 0.0.0.0 -p 8080 -r 640x480 -f 15 -st '/stream' -sn '/snapshot' -af continuous -l 0.0 -s normal
 ```
 
 The stream can then be accessed at `http://<IP of the server>:8080/stream`
