@@ -1,4 +1,4 @@
-pylint==2.15.10
+pylint
 pytest
 mock
 pytest-mock
