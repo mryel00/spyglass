@@ -310,4 +310,4 @@ def test_run_server_with_configuration_from_arguments():
         '-st', 'streaming-url',
         '-sn', 'snapshot-url'
     ])
-    spyglass.server.run_server.assert_called_once_with('1.2.3.4', 1234, ANY, 'streaming-url', 'snapshot-url')
+    spyglass.server.run_server.assert_called_once_with('1.2.3.4', 1234, ANY, ANY, 'streaming-url', 'snapshot-url')
