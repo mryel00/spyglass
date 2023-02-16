@@ -74,9 +74,8 @@ def run_server(bind_address, port, camera, output, stream_url='/stream', snapsho
             controls_dict = camera.camera_controls
             for key in controls_dict.keys():
                 if re.match("/" + key + "=", path, re.I):
-                    control, value_type = path.split('=')
-                    value, type_str = value_type.split('?')
-                    type = eval(type_str)
+                    control, value = path.split('=')
+                    type = get_type(value)
                     camera.set_controls({key: type(value)})
                     return True
             return False
@@ -96,3 +95,18 @@ def run_server(bind_address, port, camera, output, stream_url='/stream', snapsho
     address = (bind_address, port)
     current_server = StreamingServer(address, StreamingHandler)
     current_server.serve_forever()
+
+def get_type(input_string):
+    try:
+        float_value = float(input_string)
+        if float_value.is_integer():
+            return int
+        else:
+            return float
+    except ValueError:
+        pass
+    
+    if input_string.lower() in ['true', 'false']:
+        return bool
+    
+    return str
