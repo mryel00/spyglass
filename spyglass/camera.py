@@ -13,7 +13,7 @@ def init_camera(
         upsidedown=False,
         flip_horizontal=False,
         flip_vertical=False,
-        control_string=''):
+        control_string='{}'):
 
     picam2 = Picamera2()
 
@@ -43,7 +43,7 @@ def process_control_string(camera, control_string):
     controls_dict = camera.camera_controls
     try:
         string_dict = json.loads(control_string)
-    except TypeError:
+    except (TypeError, json.decoder.JSONDecodeError):
         return {}
     controls = {}
     for key in string_dict:

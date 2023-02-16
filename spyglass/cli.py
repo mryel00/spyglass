@@ -126,7 +126,7 @@ def get_parser():
                         help='Mirror the image horizontally')
     parser.add_argument('-fv', '--flip_vertical', action='store_true', 
                         help='Mirror the image vertically')
-    parser.add_argument('-c', '--controls', type=str, help='Define controls to start with spyglass')
+    parser.add_argument('-c', '--controls', default='{}', type=str, help='Define controls to start with spyglass')
     return parser
 
 # endregion cli args
