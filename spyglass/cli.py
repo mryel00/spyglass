@@ -39,7 +39,8 @@ def main(args=None):
         parse_autofocus_speed(parsed_args.autofocusspeed),
         parsed_args.upsidedown,
         parsed_args.flip_horizontal,
-        parsed_args.flip_vertical)
+        parsed_args.flip_vertical,
+        parsed_args.controls)
 
     print('Available controls:\n'+str(picam2.camera_controls))
 
@@ -125,6 +126,7 @@ def get_parser():
                         help='Mirror the image horizontally')
     parser.add_argument('-fv', '--flip_vertical', action='store_true', 
                         help='Mirror the image vertically')
+    parser.add_argument('-c', '--controls', type=str, help='Define controls to start with spyglass')
     return parser
 
 # endregion cli args
