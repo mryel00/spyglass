@@ -64,7 +64,7 @@ The absolute maximum resolution is 1920x1920. If you choose a higher resolution 
 
 ## Using Spyglass with Mainsail
 
-If you ant to use Spyglass as a webcam source for [Mainsail]() add a webcam with the following configuration:
+If you want to use Spyglass as a webcam source for [Mainsail]() add a webcam with the following configuration:
 
 -   URL Stream: `/webcam/stream`
 -   URL Snapshot: `/webcam/snapshot`
