@@ -13,7 +13,7 @@ from picamera2.encoders import MJPEGEncoder
 from picamera2.outputs import FileOutput
 
 MAX_WIDTH = 1920
-MAX_HEIGHT= 1920
+MAX_HEIGHT = 1920
 
 def main(args=None):
     """Entry point for hello cli.
@@ -122,7 +122,7 @@ def get_parser():
     parser.add_argument('-s', '--autofocusspeed', type=str, default='normal', choices=['normal', 'fast'],
                         help='Autofocus speed. Only used with Autofocus continuous')
     parser.add_argument('-ud', '--upsidedown', action='store_true',
-                        help='Rotate the immage by 180°')
+                        help='Rotate the image by 180°')
     parser.add_argument('-fh', '--flip_horizontal', action='store_true',
                         help='Mirror the image horizontally')
     parser.add_argument('-fv', '--flip_vertical', action='store_true',
