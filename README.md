@@ -1,11 +1,7 @@
 # Spyglass
 
----
-
-**Please note that this project is in a very early stage. Use at your own risk. Think about contributing to the project
+> **Please note that this project is in a very early stage. Use at your own risk. Think about contributing to the project
 if you find that something is not working, and you are able to fix it. Every contribution is appreciated.**
-
----
 
 A simple mjpeg server for Picamera2.
 
@@ -60,6 +56,12 @@ Starting the server without any argument is the same as
 
 The stream can then be accessed at `http://<IP of the server>:8080/stream`
 
+### Maximum resolution
+
+Please note that the maximum recommended resolution is 1920x1080 (16:9).
+
+The absolute maximum resolution is 1920x1920. If you choose a higher resolution spyglass may crash.
+
 ## Using Spyglass with Mainsail
 
 If you ant to use Spyglass as a webcam source for [Mainsail]() add a webcam with the following configuration:
@@ -72,7 +74,9 @@ If you ant to use Spyglass as a webcam source for [Mainsail]() add a webcam with
 
 If you want to install Spyglass globally on your machine you can use `python -m pip install .` to do so.
 
-## Install as a service
+## Install and run as a service
+
+### Install
 
 Quite simple:
 
@@ -91,8 +95,16 @@ cd ~/spyglass
 make uninstall
 ```
 
-## Configuration if run as service
+### Configuration
 
-You should find a configuration file in ~/printer_data/config/spyglass.conf.\
+You should find a configuration file in `~/printer_data/config/spyglass.conf`.
 
 Please see [spyglass.conf](resources/spyglass.conf) for an example
+
+### Restart the service
+
+To restart the service use `systemctl`:
+
+```shell
+sudo systemctl restart spyglass
+```
