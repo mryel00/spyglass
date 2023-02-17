@@ -1,3 +1,4 @@
+import argparse
 import pytest
 from unittest.mock import MagicMock, ANY
 
@@ -96,6 +97,24 @@ def test_init_camera_resolution():
         DEFAULT_FLIP_HORIZONTALLY,
         DEFAULT_FLIP_VERTICALLY
     )
+
+
+def test_raise_error_when_width_greater_than_maximum():
+    from spyglass import cli
+    # import spyglass.camera
+    with pytest.raises(argparse.ArgumentTypeError):
+        cli.main(args=[
+            '-r', '1921x1920'
+        ])
+
+
+def test_raise_error_when_height_greater_than_maximum():
+    from spyglass import cli
+    # import spyglass.camera
+    with pytest.raises(argparse.ArgumentTypeError):
+        cli.main(args=[
+            '-r', '1920x1921'
+        ])
 
 
 def test_init_camera_fps():
@@ -279,3 +298,4 @@ def test_run_server_with_configuration_from_arguments():
         '-sn', 'snapshot-url'
     ])
     spyglass.server.run_server.assert_called_once_with('1.2.3.4', 1234, ANY, 'streaming-url', 'snapshot-url')
+

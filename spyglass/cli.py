@@ -12,6 +12,8 @@ from spyglass.server import run_server
 from picamera2.encoders import MJPEGEncoder
 from picamera2.outputs import FileOutput
 
+MAX_WIDTH = 1920
+MAX_HEIGHT= 1920
 
 def main(args=None):
     """Entry point for hello cli.
@@ -79,6 +81,8 @@ def split_resolution(res):
     parts = res.split('x')
     w = int(parts[0])
     h = int(parts[1])
+    if w > MAX_WIDTH or h > MAX_HEIGHT:
+        raise argparse.ArgumentTypeError("Maximum supported resolution is 1920x1920")
     return w, h
 
 
@@ -104,7 +108,7 @@ def get_parser():
                                                                                  'connections')
     parser.add_argument('-p', '--port', type=int, default=8080, help='Bind to port for incoming connections')
     parser.add_argument('-r', '--resolution', type=resolution_type, default='640x480',
-                        help='Resolution of the images width x height')
+                        help='Resolution of the images width x height. Maximum is 1920x1920.')
     parser.add_argument('-f', '--fps', type=int, default=15, help='Frames per second to capture')
     parser.add_argument('-st', '--stream_url', type=str, default='/stream',
                         help='Sets the URL for the mjpeg stream')
@@ -117,11 +121,11 @@ def get_parser():
                              'Only used with Autofocus manual')
     parser.add_argument('-s', '--autofocusspeed', type=str, default='normal', choices=['normal', 'fast'],
                         help='Autofocus speed. Only used with Autofocus continuous')
-    parser.add_argument('-ud', '--upsidedown', action='store_true', 
+    parser.add_argument('-ud', '--upsidedown', action='store_true',
                         help='Rotate the immage by 180°')
-    parser.add_argument('-fh', '--flip_horizontal', action='store_true', 
+    parser.add_argument('-fh', '--flip_horizontal', action='store_true',
                         help='Mirror the image horizontally')
-    parser.add_argument('-fv', '--flip_vertical', action='store_true', 
+    parser.add_argument('-fv', '--flip_vertical', action='store_true',
                         help='Mirror the image vertically')
     return parser
 
