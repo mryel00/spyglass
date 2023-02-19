@@ -27,7 +27,7 @@ def main(args=None):
     becomes sys.exit(main()).
     The __main__ entry point similarly wraps sys.exit().
     """
-    logging.info(f"Spyglass %s", __version__)
+    logging.info(f"Spyglass {__version__}")
 
     if args is None:
         args = sys.argv[1:]
