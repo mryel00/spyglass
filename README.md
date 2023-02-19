@@ -137,7 +137,7 @@ set up to check commit messages pre commit.
  Use '--' to separate paths from revisions, like this:
  'git <command> [<revision>...] -- [<file>...]'
  ```
- This error occurs when your HEAD branch is not propperly set ([Steck Overflow](https://stackoverflow.com/a/8841024))
+ This error occurs when your HEAD branch is not properly set ([Stack Overflow](https://stackoverflow.com/a/8841024))
  To fix this run the following command:
  ```shell
  git remote set-head origin -a
