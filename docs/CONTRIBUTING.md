@@ -47,24 +47,33 @@ Common aspects that a review looks for:
 
 ## Format of Commit Messages
 
-Each commit should be similar to the following format to help with the review process:
+The header of the commit should be conformal with [conventional commits](https://www.conventionalcommits.org) and the
+description should be contained in the commit message body.
 
 ```
-<Module>: Capitalized, short summary (the 'what' of the change)
+<type>: lowercase, present form, short summary (the 'what' of the change)
 
 Optional, more detailed explanation of what the commit does (the 'why' and 'how').
 
 Signed-off-by: My Name <myemail@example.org>
 ```
 
-`Module` should be a directory name, filename or similar to help understand what part of the application is affected
-by the change.
+The `<type>` may be one of the following list:
+
+* `feat` - A new feature
+* `fix` - A bug fix
+* `test` - Adding a new test or improve an existing one
+* `docs` - Changes or additions to the documentation
+* `refactor` - Refactoring of the code or other project elements
+* `chore` - Other modifications that do not modify implementation, test or documentations
 
 It is important to have a "Signed-off-by" line on each commit to certify that you agree to the
 [developer certificate of origin](developer-certificate-of-origin.md). Depending on your IDE or editor you can
 automatically add this submission line with each commit.
 It has to contain your real name (please don't use pseudonyms) and contain a current email address. Unfortunately, we
 cannot accept anonymous submissions.
+
+You can use `git commit -s` to sign off a commit.
 
 ## Format of the Pull Request
 
@@ -79,17 +88,8 @@ When crating the pull request we ask you to use the following guideline:
 The title of the pull request has the following format:
 
 ```
-<type>: Capitalized, short summary (the 'what' of the change)
+<type>: lowercase, present form, short summary (the 'what' of the change)
 ```
-
-The <type> may be one of the following list:
-
-* `feat` - A new feature
-* `fix` - A bug fix
-* `test` - Adding a new test or improve an existing one
-* `docs` - Changes or additions to the documentation
-* `refactor` - Refactoring of the code or other project elements
-* `chore` - Other modifications that do not modify implementation, test or documentations
 
 If your submission does introduce a breaking change please add `BREAKING CHANGE` to the beginning of the description.
 
