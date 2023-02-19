@@ -1,0 +1,2 @@
+commitizen
+pre-commit
