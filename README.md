@@ -12,7 +12,7 @@ the [Raspberry Pi Camera Module 3](https://www.raspberrypi.com/products/camera-m
 
 -   Raspberry Pi OS Bullseye
 -   [Picamera2](https://github.com/raspberrypi/picamera2) - Already installed on Raspberry Pi OS Bullseye
--   Python 3
+-   Python 3.8+
 -   A camera supported by libcamera and connected to the Raspberry Pi
 
 ## Quick Start
@@ -108,3 +108,35 @@ To restart the service use `systemctl`:
 ```shell
 sudo systemctl restart spyglass
 ```
+
+## Start Developing
+
+If you want to setup your environment for development perform the following steps:
+
+Setup your Python virtual environment:
+```shell
+python -m venv .venv                  # Create a new virtual environment
+. .venv/bin/activate                  # Activate virtual environment
+python -m pip install --upgrade pip   # Upgrade PIP to the current version
+pip install -r requirements.txt       # Install application dependencies
+pip install -r requirements-test.txt  # Install test dependencies
+pip install -r requirements-dev.txt   # Install development dependencies
+```
+
+The project uses [commitizen](https://github.com/commitizen-tools/commitizen) to check commit messages to comply with
+[Conventional Commits](http://conventionalcommits.org). When installing the development dependencies git-hooks will be
+set up to check commit messages pre commit.
+
+### Problems when Committing to your Branch
+
+ You may get the following error message when you try to push to your branch:
+ ```
+ fatal: ambiguous argument 'origin/HEAD..HEAD': unknown revision or path not in the working tree.
+ Use '--' to separate paths from revisions, like this:
+ 'git <command> [<revision>...] -- [<file>...]'
+ ```
+ This error occurs when your HEAD branch is not propperly set ([Steck Overflow](https://stackoverflow.com/a/8841024))
+ To fix this run the following command:
+ ```shell
+ git remote set-head origin -a
+ ```
