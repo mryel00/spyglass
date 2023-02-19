@@ -32,16 +32,16 @@ jobs:
           pip install build
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Build package
-        run: |
-          python -m build
-
       - name: Create bump and changelog
         uses: commitizen-tools/commitizen-action@master
         id: bump
         with:
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           changelog_increment_filename: release_body.md
+
+      - name: Build package
+        run: |
+          python -m build
 
       - name: Release
         uses: softprops/action-gh-release@v1
