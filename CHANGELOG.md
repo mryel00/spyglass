@@ -1,3 +1,9 @@
+## v0.10.2 (2023-02-19)
+
+### Fix
+
+- fix version project configuration
+
 ## v0.10.1 (2023-02-19)
 
 ### Fix
