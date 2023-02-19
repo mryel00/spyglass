@@ -3,17 +3,22 @@
 Parse command line arguments in, invoke server.
 """
 import argparse
-import sys
-import libcamera
+import logging
 import re
-from spyglass.camera import init_camera
-from spyglass.server import StreamingOutput
-from spyglass.server import run_server
+import sys
+
+import libcamera
 from picamera2.encoders import MJPEGEncoder
 from picamera2.outputs import FileOutput
 
+from spyglass.__version__ import __version__
+from spyglass.camera import init_camera
+from spyglass.server import StreamingOutput
+from spyglass.server import run_server
+
 MAX_WIDTH = 1920
 MAX_HEIGHT = 1920
+
 
 def main(args=None):
     """Entry point for hello cli.
@@ -22,6 +27,8 @@ def main(args=None):
     becomes sys.exit(main()).
     The __main__ entry point similarly wraps sys.exit().
     """
+    logging.info(f"Spyglass {__version__}")
+
     if args is None:
         args = sys.argv[1:]
 
