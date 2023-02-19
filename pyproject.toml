@@ -18,3 +18,8 @@ mock_use_standalone_module = true
 name = "cz_conventional_commits"
 version = "0.9.0"
 tag_format = "v$version"
+version_files = [
+    "spyglass/__version__.py",
+    "pyproject.toml:version",
+    "README.md:Current version"
+]
