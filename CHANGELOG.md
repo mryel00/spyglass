@@ -1,3 +1,9 @@
+## v0.10.1 (2023-02-19)
+
+### Fix
+
+- build packages after version bump
+
 ## v0.10.0 (2023-02-19)
 
 ### Feat
