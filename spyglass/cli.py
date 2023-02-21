@@ -39,6 +39,7 @@ def main(args=None):
     width, height = split_resolution(parsed_args.resolution)
     stream_url = parsed_args.stream_url
     snapshot_url = parsed_args.snapshot_url
+    orientation_exif = parsed_args.orientation_exif
     picam2 = init_camera(
         width,
         height,
@@ -54,7 +55,7 @@ def main(args=None):
     picam2.start_recording(MJPEGEncoder(), FileOutput(output))
 
     try:
-        run_server(bind_address, port, output, stream_url, snapshot_url)
+        run_server(bind_address, port, output, stream_url, snapshot_url, orientation_exif)
     finally:
         picam2.stop_recording()
 
@@ -134,6 +135,9 @@ def get_parser():
                         help='Mirror the image horizontally')
     parser.add_argument('-fv', '--flip_vertical', action='store_true',
                         help='Mirror the image vertically')
+    parser.add_argument('-or', '--orientation_exif', type=int, default=0,
+                        help='Change orientation based on exif header. '
+                        'See https://exiftool.org/TagNames/EXIF.html for more information')
     return parser
 
 # endregion cli args
