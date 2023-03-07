@@ -117,10 +117,7 @@ def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/
             # Check URL params
             params_match = self.check_params_match(expected_url, incoming_url)
             
-            if paths_match and params_match:
-                return paths_match==params_match
-            
-            return False
+            return paths_match and params_match
 
     logger.info('Server listening on %s:%d', bind_address, port)
     logger.info('Streaming endpoint: %s', stream_url)
