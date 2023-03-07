@@ -25,9 +25,9 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/snapshot'):
     class StreamingHandler(server.BaseHTTPRequestHandler):        
         def do_GET(self):
-            if self.path == stream_url:
+            if stream_url in self.path:
                 self.start_streaming()
-            elif self.path == snapshot_url:
+            elif snapshot_url in self.path:
                 self.send_snapshot()
             else:
                 self.send_error(404)
