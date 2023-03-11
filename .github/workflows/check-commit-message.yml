@@ -30,4 +30,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cz check --rev-range origin/main..HEAD
-          echo ${{ github.event.pull_request.title }} | cz check
+          echo "${{ github.event.pull_request.title }}" | cz check
