@@ -11,6 +11,7 @@ import libcamera
 from picamera2.encoders import MJPEGEncoder
 from picamera2.outputs import FileOutput
 
+from spyglass.exif import option_to_exif_orientation_map
 from spyglass.__version__ import __version__
 from spyglass.camera import init_camera
 from spyglass.server import StreamingOutput
@@ -69,12 +70,20 @@ def resolution_type(arg_value, pat=re.compile(r"^\d+x\d+$")):
     return arg_value
 
 
+def orientation_type(arg_value):
+    if arg_value in option_to_exif_orientation_map:
+        return option_to_exif_orientation_map[arg_value]
+    else:
+        raise argparse.ArgumentTypeError(f"invalid value: unknown orientation {arg_value}.")
+
+
 def parse_autofocus(arg_value):
     if arg_value == 'manual':
         return libcamera.controls.AfModeEnum.Manual
     elif arg_value == 'continuous':
         return libcamera.controls.AfModeEnum.Continuous
-    raise argparse.ArgumentTypeError("invalid value: manual or continuous expected.")
+    else:
+        raise argparse.ArgumentTypeError("invalid value: manual or continuous expected.")
 
 
 def parse_autofocus_speed(arg_value):
@@ -82,7 +91,8 @@ def parse_autofocus_speed(arg_value):
         return libcamera.controls.AfSpeedEnum.Normal
     elif arg_value == 'fast':
         return libcamera.controls.AfSpeedEnum.Fast
-    raise argparse.ArgumentTypeError("invalid value: normal or fast expected.")
+    else:
+        raise argparse.ArgumentTypeError("invalid value: normal or fast expected.")
 
 
 def split_resolution(res):
@@ -130,14 +140,22 @@ def get_parser():
     parser.add_argument('-s', '--autofocusspeed', type=str, default='normal', choices=['normal', 'fast'],
                         help='Autofocus speed. Only used with Autofocus continuous')
     parser.add_argument('-ud', '--upsidedown', action='store_true',
-                        help='Rotate the image by 180°')
+                        help='Rotate the image by 180° (sensor level)')
     parser.add_argument('-fh', '--flip_horizontal', action='store_true',
-                        help='Mirror the image horizontally')
+                        help='Mirror the image horizontally (sensor level)')
     parser.add_argument('-fv', '--flip_vertical', action='store_true',
-                        help='Mirror the image vertically')
-    parser.add_argument('-or', '--orientation_exif', type=int, default=0,
-                        help='Change orientation based on exif header. '
-                        'See https://exiftool.org/TagNames/EXIF.html for more information')
+                        help='Mirror the image vertically (sensor level)')
+    parser.add_argument('-or', '--orientation_exif', type=orientation_type, default='h',
+                        help='Set the image orientation using an EXIF header:\n'
+                             '  h      - Horizontal (normal)\n'
+                             '  mh     - Mirror horizontal\n'
+                             '  r180   - Rotate 180\n'
+                             '  mv     - Mirror vertical\n'
+                             '  mhr270 - Mirror horizontal and rotate 270 CW\n'
+                             '  r90    - Rotate 90 CW\n'
+                             '  mhr90  - Mirror horizontal and rotate 90 CW\n'
+                             '  r270   - Rotate 270 CW'
+                        )
     return parser
 
 # endregion cli args
