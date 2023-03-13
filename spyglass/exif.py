@@ -35,7 +35,7 @@ def create_exif_header(orientation: int):
     ])
 
 
-option_to_exif_orientation_map = {
+option_to_exif_orientation = {
     'h': 1,
     'mh': 2,
     'r180': 3,

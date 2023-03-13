@@ -11,7 +11,7 @@ import libcamera
 from picamera2.encoders import MJPEGEncoder
 from picamera2.outputs import FileOutput
 
-from spyglass.exif import option_to_exif_orientation_map
+from spyglass.exif import option_to_exif_orientation
 from spyglass.__version__ import __version__
 from spyglass.camera import init_camera
 from spyglass.server import StreamingOutput
@@ -71,8 +71,8 @@ def resolution_type(arg_value, pat=re.compile(r"^\d+x\d+$")):
 
 
 def orientation_type(arg_value):
-    if arg_value in option_to_exif_orientation_map:
-        return option_to_exif_orientation_map[arg_value]
+    if arg_value in option_to_exif_orientation:
+        return option_to_exif_orientation[arg_value]
     else:
         raise argparse.ArgumentTypeError(f"invalid value: unknown orientation {arg_value}.")
 
