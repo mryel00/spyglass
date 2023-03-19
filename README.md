@@ -49,7 +49,6 @@ On startup the following arguments are supported:
 | `-af`, `--autofocus`       | Autofocus mode. Supported modes: `manual`, `continuous`                                             | `continuous` |
 | `-l`, `--lensposition`     | Set focal distance. 0 for infinite focus, 0.5 for approximate 50cm. Only used with Autofocus manual | `0.0`        |
 | `-s`, `--autofocusspeed`   | Autofocus speed. Supported values: `normal`, `fast`. Only used with Autofocus continuous            | `normal`     |
-| `-s`, `--autofocusspeed`   | Autofocus speed. Supported values: `normal`, `fast`. Only used with Autofocus continuous            | `normal`     |
 | `-ud` `--upsidedown`       | Rotate the image by 180° (see below)                                                                |              |
 | `-fh` `--flip_horizontal`  | Mirror the image horizontally (see below)                                                           |              |
 | `-fv` `--flip_vertical`    | Mirror the image vertically (see below)                                                             |              |
