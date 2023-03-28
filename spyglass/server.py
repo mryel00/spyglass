@@ -93,7 +93,10 @@ def run_server(bind_address, port, camera, output, stream_url='/stream', snapsho
                 if re.match("/" + key + "=", path, re.I):
                     control, value = path.split('=')
                     type = get_type(value)
-                    camera.set_controls({key: type(value)})
+                    if bool == type:
+                        camera.set_controls({key: value.lower() != 'false'})
+                    else:
+                        camera.set_controls({key: type(value)})
                     return True
             return False
 
