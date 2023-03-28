@@ -322,7 +322,7 @@ def test_init_camera_controls():
     from spyglass import cli
     import spyglass.camera
     cli.main(args=[
-        '-c', '{"brightness": -0.4}'
+        '-c', 'brightness=-0.4,awbenable=false'
     ])
     spyglass.camera.init_camera.assert_called_once_with(
         DEFAULT_WIDTH,
@@ -334,7 +334,7 @@ def test_init_camera_controls():
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
         DEFAULT_FLIP_VERTICALLY,
-        'brightness=-0.4,awbenable=false'
+        ['brightness=-0.4','awbenable=false']
     )
 
 
