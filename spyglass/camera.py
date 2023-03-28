@@ -2,7 +2,6 @@ import libcamera
 import json
 from picamera2 import Picamera2
 
-
 def init_camera(
         width: int,
         height: int,
@@ -13,16 +12,13 @@ def init_camera(
         upsidedown=False,
         flip_horizontal=False,
         flip_vertical=False,
-        control_string='{}'):
+        control_list=[]):
 
     picam2 = Picamera2()
 
     controls = {'FrameRate': fps}
 
-    # preprocessing for json.loads
-    control_string = control_string.replace('\'', '\"').replace('True', 'true').replace('False', 'false')
-
-    c = process_control_string(picam2, control_string)
+    c = process_control_list(picam2, control_list)
     controls.update(c)
 
     if 'AfMode' in picam2.camera_controls:
@@ -39,8 +35,16 @@ def init_camera(
 
     return picam2
 
-def process_control_string(camera, control_string):
+def process_control_list(camera, control_list):
     controls_dict = camera.camera_controls
+    control_string = '{'
+    for control in control_list:
+        control = control.replace(' ', '').split(',') # parse config input
+        for c in control:
+            c = c.split('=')
+            control_string += f'"{c[0]}":{c[1].lower()},' # add each control in dictionary syntax, lower case value for parsing
+    control_string = control_string[0:-1] # delete last comma
+    control_string += '}'
     try:
         string_dict = json.loads(control_string)
     except (TypeError, json.decoder.JSONDecodeError):

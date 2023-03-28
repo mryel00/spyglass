@@ -159,7 +159,7 @@ def get_parser():
                              '  mhr90  - Mirror horizontal and rotate 90 CW\n'
                              '  r270   - Rotate 270 CW'
                         )
-    parser.add_argument('-c', '--controls', default='{}', type=str, help='Define controls to start with spyglass')
+    parser.add_argument('-c', '--controls', default=[], type=str, nargs='*', help='Define controls to start with spyglass')
     return parser
 
 # endregion cli args

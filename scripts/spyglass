@@ -104,7 +104,7 @@ run_spyglass() {
     --lensposition "${FOCAL_DIST:-0.0}" \
     --autofocusspeed "${AF_SPEED:-normal}" \
     --orientation_exif "${ORIENTATION_EXIF:-h}" \
-    --controls "${CONTROLS:-{\}}"
+    --controls "${CONTROLS:-0=0}" # 0=0 to prevent error on empty string
 }
 
 #### MAIN
