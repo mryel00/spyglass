@@ -16,7 +16,7 @@ DEFAULT_LENS_POSITION = 0.0
 DEFAULT_FPS = 15
 DEFAULT_AF_SPEED = AF_SPEED_ENUM_NORMAL
 DEFAULT_AUTOFOCUS_MODE = AF_MODE_ENUM_CONTINUOUS
-DEFAULT_CONTROLS = '{}'
+DEFAULT_CONTROLS = []
 
 
 @pytest.fixture(autouse=True)
@@ -334,7 +334,7 @@ def test_init_camera_controls():
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
         DEFAULT_FLIP_VERTICALLY,
-        '{"brightness": -0.4}'
+        'brightness=-0.4,awbenable=false'
     )
 
 
@@ -350,7 +350,7 @@ def test_run_server_with_configuration_from_arguments(mock_spyglass_server, mock
         '-sn', 'snapshot-url',
         '-or', 'h'
     ])
-    spyglass.server.run_server.assert_called_once_with('1.2.3.4', 1234, ANY, 'streaming-url', 'snapshot-url', 1)
+    spyglass.server.run_server.assert_called_once_with('1.2.3.4', 1234, ANY, ANY, 'streaming-url', 'snapshot-url', 1)
 
 
 @patch("spyglass.server.run_server")
