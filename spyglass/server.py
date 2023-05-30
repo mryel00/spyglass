@@ -108,12 +108,9 @@ def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/
             
             # Update list order for expected params
             exp_params = list(set(exp_params))
-            
-            if matching_params and exp_params:
-                return matching_params==exp_params
-            
-            return False
-        
+
+            return matching_params==exp_params
+
         def check_urls_match(self, expected_url, incoming_url):
             
             # Check URL paths
