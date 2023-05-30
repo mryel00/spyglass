@@ -81,11 +81,16 @@ def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/
             # Assign paths from URL into list
             exp_paths = urlparse(expected_url.strip("/")).path.split("/")
             inc_paths = urlparse(incoming_url.strip("/")).path.split("/")
-            
+
             # Drop ip/hostname if present in path
             if '.' in exp_paths[0]: exp_paths.pop(0)
             if '.' in inc_paths[0]: inc_paths.pop(0)
-            
+
+            # Filter out empty strings
+            # This allows e.g. /stream/?action=stream for /stream?action=stream
+            exp_paths = list(filter(None, exp_paths))
+            inc_paths = list(filter(None, inc_paths))
+
             # Determine if match
             if len(exp_paths)==len(inc_paths):
                 return all([exp == inc for exp, inc in zip(exp_paths, inc_paths)])
