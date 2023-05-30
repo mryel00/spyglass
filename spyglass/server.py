@@ -75,9 +75,9 @@ def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/
         def send_jpeg_content_headers(self, frame):
             self.send_header('Content-Type', 'image/jpeg')
             self.send_header('Content-Length', len(frame))
-            
+
         def check_paths_match(self, expected_url, incoming_url):
-            
+
             # Assign paths from URL into list
             exp_paths = urlparse(expected_url.strip("/")).path.split("/")
             inc_paths = urlparse(incoming_url.strip("/")).path.split("/")
@@ -94,31 +94,31 @@ def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/
             # Determine if match
             if len(exp_paths)==len(inc_paths):
                 return all([exp == inc for exp, inc in zip(exp_paths, inc_paths)])
-            
+
             return False
-        
+
         def check_params_match(self, expected_url, incoming_url):
-            
+
             # Check URL params
             exp_params = parse_qsl(urlparse(expected_url).query)
             inc_params = parse_qsl(urlparse(incoming_url).query)
-            
+
             # Create list of matching params
             matching_params = list(set(exp_params) & set(inc_params))
-            
+
             # Update list order for expected params
             exp_params = list(set(exp_params))
 
             return matching_params==exp_params
 
         def check_urls_match(self, expected_url, incoming_url):
-            
+
             # Check URL paths
             paths_match = self.check_paths_match(expected_url, incoming_url)
-            
+
             # Check URL params
             params_match = self.check_params_match(expected_url, incoming_url)
-            
+
             return paths_match and params_match
 
     logger.info('Server listening on %s:%d', bind_address, port)
