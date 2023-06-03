@@ -1,3 +1,9 @@
+## v0.11.0 (2023-03-19)
+
+### Feat
+
+- add exif based image rotation (#37)
+
 ## v0.10.3 (2023-03-05)
 
 ### Fix
