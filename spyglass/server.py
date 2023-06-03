@@ -3,7 +3,7 @@ import logging
 import socketserver
 from http import server
 from threading import Condition
-from urllib.parse import urlparse, parse_qsl
+from spyglass.url_parsing import check_urls_match
 from spyglass.exif import create_exif_header
 from . import logger
 
@@ -29,9 +29,9 @@ def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/
 
     class StreamingHandler(server.BaseHTTPRequestHandler):
         def do_GET(self):
-            if self.check_urls_match(stream_url, self.path):
+            if check_urls_match(stream_url, self.path):
                 self.start_streaming()
-            elif self.check_urls_match(snapshot_url, self.path):
+            elif check_urls_match(snapshot_url, self.path):
                 self.send_snapshot()
             else:
                 self.send_error(404)
@@ -91,51 +91,6 @@ def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/
         def send_jpeg_content_headers(self, frame, extra_len=0):
             self.send_header('Content-Type', 'image/jpeg')
             self.send_header('Content-Length', str(len(frame) + extra_len))
-
-        def check_paths_match(self, expected_url, incoming_url):
-
-            # Assign paths from URL into list
-            exp_paths = urlparse(expected_url.strip("/")).path.split("/")
-            inc_paths = urlparse(incoming_url.strip("/")).path.split("/")
-
-            # Drop ip/hostname if present in path
-            if '.' in exp_paths[0]: exp_paths.pop(0)
-            if '.' in inc_paths[0]: inc_paths.pop(0)
-
-            # Filter out empty strings
-            # This allows e.g. /stream/?action=stream for /stream?action=stream
-            exp_paths = list(filter(None, exp_paths))
-            inc_paths = list(filter(None, inc_paths))
-
-            # Determine if match
-            if len(exp_paths)==len(inc_paths):
-                return all([exp == inc for exp, inc in zip(exp_paths, inc_paths)])
-
-            return False
-
-        def check_params_match(self, expected_url, incoming_url):
-
-            # Check URL params
-            exp_params = parse_qsl(urlparse(expected_url).query)
-            inc_params = parse_qsl(urlparse(incoming_url).query)
-
-            # Create list of matching params
-            matching_params = list(set(exp_params) & set(inc_params))
-
-            # Update list order for expected params
-            exp_params = list(set(exp_params))
-
-            return matching_params==exp_params
-
-        def check_urls_match(self, expected_url, incoming_url):
-
-            # Check URL paths
-            paths_match = self.check_paths_match(expected_url, incoming_url)
-
-            # Check URL params
-            params_match = self.check_params_match(expected_url, incoming_url)
-
-            return paths_match and params_match
 
     logger.info('Server listening on %s:%d', bind_address, port)
     logger.info('Streaming endpoint: %s', stream_url)
