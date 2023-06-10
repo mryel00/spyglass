@@ -1,3 +1,9 @@
+## v0.11.1 (2023-06-10)
+
+### Fix
+
+- URL routing to accept requests that contain unused parameters (#42)
+
 ## v0.11.0 (2023-03-19)
 
 ### Feat
