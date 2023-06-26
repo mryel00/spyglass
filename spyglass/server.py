@@ -4,7 +4,7 @@ import logging
 import socketserver
 from http import server
 from threading import Condition
-
+from spyglass.url_parsing import check_urls_match
 from spyglass.exif import create_exif_header
 from . import logger
 
@@ -30,9 +30,9 @@ def run_server(bind_address, port, camera, output, stream_url='/stream', snapsho
 
     class StreamingHandler(server.BaseHTTPRequestHandler):
         def do_GET(self):
-            if self.path == stream_url:
+            if check_urls_match(stream_url, self.path):
                 self.start_streaming()
-            elif self.path == snapshot_url:
+            elif check_urls_match(snapshot_url, self.path):
                 self.send_snapshot()
             elif self.process_control_path(self.path):
                 self.send_response(200)
