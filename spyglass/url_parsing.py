@@ -26,10 +26,10 @@ def check_params_match(expected_url, incoming_url):
     inc_params = parse_qsl(urlparse(incoming_url).query)
 
     # Create list of matching params
-    matching_params = list(set(exp_params) & set(inc_params))
+    matching_params = set(exp_params) & set(inc_params)
 
     # Update list order for expected params
-    exp_params = list(set(exp_params))
+    exp_params = set(exp_params)
 
     return matching_params==exp_params
 
