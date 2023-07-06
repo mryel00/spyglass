@@ -127,6 +127,22 @@ cd ~/spyglass
 make uninstall
 ```
 
+#### Using Moonraker Update Manager
+
+To be able to use Moonraker update manager, add the following lines to moonraker.conf:
+
+```conf
+[update_manager spyglass]
+type: git_repo
+channel: beta
+path: ~/spyglass
+origin: https://github.com/roamingthings/spyglass.git
+managed_services: spyglass
+```
+> Make sure moonraker.asvc contains `spyglass` in the list: `cat ~/printer_data/moonraker.asvc | grep spyglass`.
+> 
+> If not there execute: `make upgrade-moonraker`
+
 ### Configuration
 
 You should find a configuration file in `~/printer_data/config/spyglass.conf`.
