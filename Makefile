@@ -51,7 +51,7 @@ upgrade-moonraker: ## In case of old version of Spyglass being upgraded to newer
 	@sudo sed -i "s/%USER%/$(USER)/g" $(SYSTEMD)/spyglass.service
 	@printf "Saving backup of moonraker.asvc file as %s ...\n" $(PRINTER_DATA_PATH)/moonraker.asvc.bak
 	@sudo cp -f $(PRINTER_DATA_PATH)/moonraker.asvc $(PRINTER_DATA_PATH)/moonraker.asvc.bak
-	@printf "Upgrading moonraker update manager authorization ...\n"
+	@printf "Upgrading Moonraker update manager authorization ...\n"
 	@sudo sed -i '/spyglass/d' $(PRINTER_DATA_PATH)/moonraker.asvc
 	@sudo echo "spyglass" >> $(PRINTER_DATA_PATH)/moonraker.asvc
 	@printf "You can now include the configuration in moonraker.conf to manage Spyglass updates ...\n"
