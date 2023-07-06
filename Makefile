@@ -11,7 +11,7 @@
 USER = $(shell whoami)
 SYSTEMD = /etc/systemd/system
 BIN_PATH = /usr/local/bin
-PRINTER_DATA_PATH=/home/$(USER)/printer_data
+PRINTER_DATA_PATH = /home/$(USER)/printer_data
 CONF_PATH = $(PRINTER_DATA_PATH)/config
 
 all:
