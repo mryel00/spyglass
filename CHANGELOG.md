@@ -1,3 +1,9 @@
+## v0.12.0 (2023-07-06)
+
+### Feat
+
+- Add compatibility with moonraker update manager (#54)
+
 ## v0.11.2 (2023-07-02)
 
 ### Fix
