@@ -11,9 +11,16 @@ def init_camera(
         autofocus_speed: str,
         upsidedown=False,
         flip_horizontal=False,
-        flip_vertical=False):
-    picam2 = Picamera2()
+        flip_vertical=False,
+        tuning_filter=None,
+        tuning_filter_dir=None):
 
+    tuning = None
+
+    if tuning_filter is not None:
+        tuning = Picamera2.load_tuning_file("%s.json".format(tuning_filter), tuning_filter_dir)
+
+    picam2 = Picamera2(tuning=tuning)
     controls = {'FrameRate': fps}
 
     if 'AfMode' in picam2.camera_controls:

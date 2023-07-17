@@ -103,7 +103,9 @@ run_spyglass() {
     --autofocus "${AUTO_FOCUS:-continuous}" \
     --lensposition "${FOCAL_DIST:-0.0}" \
     --autofocusspeed "${AF_SPEED:-normal}" \
-    --orientation_exif "${ORIENTATION_EXIF:-h}"
+    --orientation_exif "${ORIENTATION_EXIF:-h}"\
+    --tuning_filter "${TUNING_FILTER:-h}"\
+    --tuning_filter_dir "${TUNING_FILTER_DIR:-h}"
 }
 
 #### MAIN
