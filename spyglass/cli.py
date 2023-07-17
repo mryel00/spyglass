@@ -158,9 +158,9 @@ def get_parser():
                              '  mhr90  - Mirror horizontal and rotate 90 CW\n'
                              '  r270   - Rotate 270 CW'
                         )
-    parser.add_argument('-tf', '--tuning_filter', type=str, default=None,
+    parser.add_argument('-tf', '--tuning_filter', type=str, default="", nargs='?', const="",
                         help='Set a tuning filter file name.')
-    parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None,
+    parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default="", nargs='?',const="",
                         help='Set the directory to look for tuning filters.')
     return parser
 

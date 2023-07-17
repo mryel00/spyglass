@@ -17,8 +17,8 @@ def init_camera(
 
     tuning = None
 
-    if tuning_filter is not None:
-        tuning = Picamera2.load_tuning_file("%s.json".format(tuning_filter), tuning_filter_dir)
+    if len(tuning_filter) > 0:
+        tuning = Picamera2.load_tuning_file(tuning_filter, tuning_filter_dir)
 
     picam2 = Picamera2(tuning=tuning)
     controls = {'FrameRate': fps}
