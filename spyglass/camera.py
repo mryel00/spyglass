@@ -17,7 +17,7 @@ def init_camera(
 
     tuning = None
 
-    if len(tuning_filter) > 0:
+    if tuning_filter:
         tuning = Picamera2.load_tuning_file(tuning_filter, tuning_filter_dir)
 
     picam2 = Picamera2(tuning=tuning)
