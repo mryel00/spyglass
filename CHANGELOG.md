@@ -1,3 +1,9 @@
+## v0.13.0 (2023-07-22)
+
+### Feat
+
+- add picamera2 tuning filters option (#55)
+
 ## v0.12.0 (2023-07-06)
 
 ### Feat
