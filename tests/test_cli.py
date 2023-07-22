@@ -16,6 +16,8 @@ DEFAULT_LENS_POSITION = 0.0
 DEFAULT_FPS = 15
 DEFAULT_AF_SPEED = AF_SPEED_ENUM_NORMAL
 DEFAULT_AUTOFOCUS_MODE = AF_MODE_ENUM_CONTINUOUS
+DEFAULT_TUNING_FILTER = None
+DEFAULT_TUNING_FILTER_DIR = None
 
 
 @pytest.fixture(autouse=True)
@@ -61,6 +63,18 @@ def test_split_resolution():
     assert height == 200
 
 
+def test_parse_tuning_filter():
+    from spyglass import cli
+    args = cli.get_args(['-tf', 'filter'])
+    assert args.tuning_filter == 'filter'
+
+
+def test_parse_tuning_filter_dir():
+    from spyglass import cli
+    args = cli.get_args(['-tfd', 'dir'])
+    assert args.tuning_filter_dir == 'dir'
+
+
 @patch("spyglass.server.run_server")
 @patch("spyglass.camera.init_camera")
 def test_init_camera_with_defaults(mock_spyglass_camera, mock_spyglass_server):
@@ -76,7 +90,9 @@ def test_init_camera_with_defaults(mock_spyglass_camera, mock_spyglass_server):
         DEFAULT_AF_SPEED,
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
-        DEFAULT_FLIP_VERTICALLY
+        DEFAULT_FLIP_VERTICALLY,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -97,7 +113,9 @@ def test_init_camera_resolution(mock_spyglass_server, mock_spyglass_camera):
         DEFAULT_AF_SPEED,
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
-        DEFAULT_FLIP_VERTICALLY
+        DEFAULT_FLIP_VERTICALLY,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -134,7 +152,9 @@ def test_init_camera_fps(mock_spyglass_server, mock_spyglass_camera):
         DEFAULT_AF_SPEED,
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
-        DEFAULT_FLIP_VERTICALLY
+        DEFAULT_FLIP_VERTICALLY,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -155,7 +175,9 @@ def test_init_camera_af_manual(mock_spyglass_server, mock_spyglass_camera):
         DEFAULT_AF_SPEED,
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
-        DEFAULT_FLIP_VERTICALLY
+        DEFAULT_FLIP_VERTICALLY,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -176,7 +198,9 @@ def test_init_camera_af_continuous(mock_spyglass_server, mock_spyglass_camera):
         DEFAULT_AF_SPEED,
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
-        DEFAULT_FLIP_VERTICALLY
+        DEFAULT_FLIP_VERTICALLY,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -197,7 +221,9 @@ def test_init_camera_lens_position(mock_spyglass_server, mock_spyglass_camera):
         DEFAULT_AF_SPEED,
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
-        DEFAULT_FLIP_VERTICALLY
+        DEFAULT_FLIP_VERTICALLY,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -218,7 +244,9 @@ def test_init_camera_af_speed_normal(mock_spyglass_server, mock_spyglass_camera)
         AF_SPEED_ENUM_NORMAL,
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
-        DEFAULT_FLIP_VERTICALLY
+        DEFAULT_FLIP_VERTICALLY,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -239,7 +267,9 @@ def test_init_camera_af_speed_fast(mock_spyglass_server, mock_spyglass_camera):
         AF_SPEED_ENUM_FAST,
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
-        DEFAULT_FLIP_VERTICALLY
+        DEFAULT_FLIP_VERTICALLY,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -260,7 +290,9 @@ def test_init_camera_upside_down(mock_spyglass_server, mock_spyglass_camera):
         DEFAULT_AF_SPEED,
         True,
         DEFAULT_FLIP_HORIZONTALLY,
-        DEFAULT_FLIP_VERTICALLY
+        DEFAULT_FLIP_VERTICALLY,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -281,7 +313,9 @@ def test_init_camera_flip_horizontal(mock_spyglass_server, mock_spyglass_camera)
         DEFAULT_AF_SPEED,
         DEFAULT_UPSIDE_DOWN,
         True,
-        DEFAULT_FLIP_VERTICALLY
+        DEFAULT_FLIP_VERTICALLY,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -302,7 +336,9 @@ def test_init_camera_flip_vertical(mock_spyglass_server, mock_spyglass_camera):
         DEFAULT_AF_SPEED,
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
-        True
+        True,
+        DEFAULT_TUNING_FILTER,
+        DEFAULT_TUNING_FILTER_DIR
     )
 
 
@@ -350,4 +386,50 @@ def test_run_server_with_orientation(mock_spyglass_server, mock_spyglass_camera,
         'streaming-url',
         'snapshot-url',
         expected_output
+    )
+
+
+@patch("spyglass.server.run_server")
+@patch("spyglass.camera.init_camera")
+def test_init_camera_using_only_tuning_filter_file(mock_spyglass_server, mock_spyglass_camera):
+    from spyglass import cli
+    import spyglass.camera
+    cli.main(args=[
+        '-tf', 'test',
+    ])
+    spyglass.camera.init_camera.assert_called_once_with(
+        DEFAULT_WIDTH,
+        DEFAULT_HEIGHT,
+        DEFAULT_FPS,
+        DEFAULT_AUTOFOCUS_MODE,
+        DEFAULT_LENS_POSITION,
+        DEFAULT_AF_SPEED,
+        DEFAULT_UPSIDE_DOWN,
+        DEFAULT_FLIP_HORIZONTALLY,
+        DEFAULT_FLIP_VERTICALLY,
+        "test",
+        DEFAULT_TUNING_FILTER_DIR
+    )
+
+@patch("spyglass.server.run_server")
+@patch("spyglass.camera.init_camera")
+def test_init_camera_using_tuning_filters(mock_spyglass_server, mock_spyglass_camera):
+    from spyglass import cli
+    import spyglass.camera
+    cli.main(args=[
+        '-tf', 'test',
+        '-tfd', 'test-dir',
+    ])
+    spyglass.camera.init_camera.assert_called_once_with(
+        DEFAULT_WIDTH,
+        DEFAULT_HEIGHT,
+        DEFAULT_FPS,
+        DEFAULT_AUTOFOCUS_MODE,
+        DEFAULT_LENS_POSITION,
+        DEFAULT_AF_SPEED,
+        DEFAULT_UPSIDE_DOWN,
+        DEFAULT_FLIP_HORIZONTALLY,
+        DEFAULT_FLIP_VERTICALLY,
+        "test",
+        "test-dir"
     )

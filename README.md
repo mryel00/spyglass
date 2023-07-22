@@ -38,21 +38,23 @@ This will start the server with the following default configuration:
 
 On startup the following arguments are supported:
 
-| Argument                   | Description                                                                                         | Default      |
-|----------------------------|-----------------------------------------------------------------------------------------------------|--------------|
-| `-b`, `--bindaddress`      | Address where the server will listen for new incoming connections.                                  | `0.0.0.0`    |
-| `-p`, `--port`             | Port where the server will listen for new incoming connections.                                     | `8080`       |
-| `-r`, `--resolution`       | Resolution of the captured frames. This argument expects the format <width>x<height>                | `640x480`    |
-| `-f`, `--fps`              | Framerate in frames per second (fps).                                                               | `15`         |
-| `-st`, `--stream_url`      | Sets the URL for the mjpeg stream.                                                                  | `/stream`    |
-| `-sn`, `--snapshot_url`    | Sets the URL for snapshots (single frame of stream).                                                | `/snapshot`  |
-| `-af`, `--autofocus`       | Autofocus mode. Supported modes: `manual`, `continuous`                                             | `continuous` |
-| `-l`, `--lensposition`     | Set focal distance. 0 for infinite focus, 0.5 for approximate 50cm. Only used with Autofocus manual | `0.0`        |
-| `-s`, `--autofocusspeed`   | Autofocus speed. Supported values: `normal`, `fast`. Only used with Autofocus continuous            | `normal`     |
-| `-ud` `--upsidedown`       | Rotate the image by 180° (see below)                                                                |              |
-| `-fh` `--flip_horizontal`  | Mirror the image horizontally (see below)                                                           |              |
-| `-fv` `--flip_vertical`    | Mirror the image vertically (see below)                                                             |              |
-| `-or` `--orientation_exif` | Set the image orientation using an EXIF header (see below)                                          |              |
+| Argument                      | Description                                                                                         | Default      |
+|-------------------------------|-----------------------------------------------------------------------------------------------------|--------------|
+| `-b`, `--bindaddress`         | Address where the server will listen for new incoming connections.                                  | `0.0.0.0`    |
+| `-p`, `--port`                | Port where the server will listen for new incoming connections.                                     | `8080`       |
+| `-r`, `--resolution`          | Resolution of the captured frames. This argument expects the format <width>x<height>                | `640x480`    |
+| `-f`, `--fps`                 | Framerate in frames per second (fps).                                                               | `15`         |
+| `-st`, `--stream_url`         | Sets the URL for the mjpeg stream.                                                                  | `/stream`    |
+| `-sn`, `--snapshot_url`       | Sets the URL for snapshots (single frame of stream).                                                | `/snapshot`  |
+| `-af`, `--autofocus`          | Autofocus mode. Supported modes: `manual`, `continuous`                                             | `continuous` |
+| `-l`, `--lensposition`        | Set focal distance. 0 for infinite focus, 0.5 for approximate 50cm. Only used with Autofocus manual | `0.0`        |
+| `-s`, `--autofocusspeed`      | Autofocus speed. Supported values: `normal`, `fast`. Only used with Autofocus continuous            | `normal`     |
+| `-ud` `--upsidedown`          | Rotate the image by 180° (see below)                                                                |              |
+| `-fh` `--flip_horizontal`     | Mirror the image horizontally (see below)                                                           |              |
+| `-fv` `--flip_vertical`       | Mirror the image vertically (see below)                                                             |              |
+| `-or` `--orientation_exif`    | Set the image orientation using an EXIF header (see below)                                          |              |
+| `-tf` `--tuning_filter`       | Set a tuning filter file name.                                                                      |              |
+| `-tfd` `--tuning_filter_dir`  | Set the directory to look for tuning filters.                                                       |              |
 Starting the server without any argument is the same as
 
 ```shell
@@ -93,6 +95,21 @@ For example to rotate the image 90 degree clockwise you would start spyglass the
 ```shell
 ./run.py -or r90
 ```
+
+### Tuning filter
+Tuning filters are used to normalize or modify the camera image output, for example, using an NoIR camera can lead to a pink color, whether applying a filter to it you could remove its tone pink. More information here: https://github.com/raspberrypi/picamera2/blob/main/examples/tuning_file.py
+
+
+Predefined filters can be found at one of the picamera2 directories:
+- ~/libcamera/src/ipa/rpi/vc4/data
+- /usr/local/share/libcamera/ipa/rpi/vc4
+- /usr/share/libcamera/ipa/rpi/vc4
+- /usr/share/libcamera/ipa/raspberrypi
+
+You can also define your own directory of filter by using parameter `tuning_filter_dir`.
+
+list the files present there and you can use it in our config. eg.: `ov5647_noir.json`
+
 
 ## Using Spyglass with Mainsail
 

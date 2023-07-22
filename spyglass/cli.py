@@ -50,7 +50,9 @@ def main(args=None):
         parse_autofocus_speed(parsed_args.autofocusspeed),
         parsed_args.upsidedown,
         parsed_args.flip_horizontal,
-        parsed_args.flip_vertical)
+        parsed_args.flip_vertical,
+        parsed_args.tuning_filter,
+        parsed_args.tuning_filter_dir)
 
     output = StreamingOutput()
     picam2.start_recording(MJPEGEncoder(), FileOutput(output))
@@ -156,6 +158,10 @@ def get_parser():
                              '  mhr90  - Mirror horizontal and rotate 90 CW\n'
                              '  r270   - Rotate 270 CW'
                         )
+    parser.add_argument('-tf', '--tuning_filter', type=str, default=None, nargs='?', const="",
+                        help='Set a tuning filter file name.')
+    parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",
+                        help='Set the directory to look for tuning filters.')
     return parser
 
 # endregion cli args
