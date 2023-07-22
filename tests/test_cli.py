@@ -391,6 +391,28 @@ def test_run_server_with_orientation(mock_spyglass_server, mock_spyglass_camera,
 
 @patch("spyglass.server.run_server")
 @patch("spyglass.camera.init_camera")
+def test_init_camera_using_only_tuning_filter_file(mock_spyglass_server, mock_spyglass_camera):
+    from spyglass import cli
+    import spyglass.camera
+    cli.main(args=[
+        '-tf', 'test',
+    ])
+    spyglass.camera.init_camera.assert_called_once_with(
+        DEFAULT_WIDTH,
+        DEFAULT_HEIGHT,
+        DEFAULT_FPS,
+        DEFAULT_AUTOFOCUS_MODE,
+        DEFAULT_LENS_POSITION,
+        DEFAULT_AF_SPEED,
+        DEFAULT_UPSIDE_DOWN,
+        DEFAULT_FLIP_HORIZONTALLY,
+        DEFAULT_FLIP_VERTICALLY,
+        "test",
+        DEFAULT_TUNING_FILTER_DIR
+    )
+
+@patch("spyglass.server.run_server")
+@patch("spyglass.camera.init_camera")
 def test_init_camera_using_tuning_filters(mock_spyglass_server, mock_spyglass_camera):
     from spyglass import cli
     import spyglass.camera
