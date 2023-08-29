@@ -55,6 +55,8 @@ def process_controls(camera, controls):
     controls_dict = camera.camera_controls
     controls_dict_lower = {k.lower(): k for k, v in controls_dict.items()}
     processed_controls = []
+    if controls == None:
+        return None
     for key, value in controls:
         if key.lower() in controls_dict_lower.keys():
             type = get_type(value)
