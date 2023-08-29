@@ -4,8 +4,9 @@ import logging
 import socketserver
 from http import server
 from threading import Condition
-from spyglass.url_parsing import check_urls_match
+from spyglass.url_parsing import check_urls_match, get_url_params
 from spyglass.exif import create_exif_header
+from spyglass.camera_options import parse_dictionary_to_html_page, process_controls
 from . import logger
 
 
@@ -34,9 +35,16 @@ def run_server(bind_address, port, camera, output, stream_url='/stream', snapsho
                 self.start_streaming()
             elif check_urls_match(snapshot_url, self.path):
                 self.send_snapshot()
-            elif self.process_control_path(self.path):
+            elif check_urls_match('/options', self.path):
+                parsed_controls = get_url_params(self.path)
+                parsed_controls = parsed_controls if parsed_controls else None
+                processed_controls = process_controls(camera, parsed_controls)
+                content = parse_dictionary_to_html_page(camera, parsed_controls, processed_controls).encode('utf-8')
                 self.send_response(200)
+                self.send_header('Content-Type', 'text/html')
+                self.send_header('Content-Length', len(content))
                 self.end_headers()
+                self.wfile.write(content)
             else:
                 self.send_error(404)
                 self.end_headers()
@@ -87,19 +95,6 @@ def run_server(bind_address, port, camera, output, stream_url='/stream', snapsho
                     'Removed client %s: %s',
                     self.client_address, str(e))
 
-        def process_control_path(self, path):
-            controls_dict = camera.camera_controls
-            for key in controls_dict.keys():
-                if re.match("/" + key + "=", path, re.I):
-                    control, value = path.split('=')
-                    type = get_type(value)
-                    if bool == type:
-                        camera.set_controls({key: value.lower() != 'false'})
-                    else:
-                        camera.set_controls({key: type(value)})
-                    return True
-            return False
-
         def send_default_headers(self):
             self.send_header('Age', 0)
             self.send_header('Cache-Control', 'no-cache, private')
@@ -115,18 +110,3 @@ def run_server(bind_address, port, camera, output, stream_url='/stream', snapsho
     address = (bind_address, port)
     current_server = StreamingServer(address, StreamingHandler)
     current_server.serve_forever()
-
-def get_type(input_string):
-    try:
-        float_value = float(input_string)
-        if float_value.is_integer():
-            return int
-        else:
-            return float
-    except ValueError:
-        pass
-    
-    if input_string.lower() in ['true', 'false']:
-        return bool
-    
-    return str
