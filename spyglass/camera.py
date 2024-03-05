@@ -12,10 +12,19 @@ def init_camera(
         upsidedown=False,
         flip_horizontal=False,
         flip_vertical=False,
-        control_list=[]):
+        control_list=[],
+        tuning_filter=None,
+        tuning_filter_dir=None):
 
-    picam2 = Picamera2()
+    tuning = None
 
+    if tuning_filter:
+        params = {'tuning_file': tuning_filter}
+        if tuning_filter_dir:
+            params['dir'] = tuning_filter_dir
+        tuning = Picamera2.load_tuning_file(**params)
+
+    picam2 = Picamera2(tuning=tuning)
     controls = {'FrameRate': fps}
 
     c = process_control_list(picam2, control_list)

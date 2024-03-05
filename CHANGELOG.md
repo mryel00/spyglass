@@ -1,3 +1,21 @@
+## v0.13.0 (2023-07-22)
+
+### Feat
+
+- add picamera2 tuning filters option (#55)
+
+## v0.12.0 (2023-07-06)
+
+### Feat
+
+- Add compatibility with moonraker update manager (#54)
+
+## v0.11.2 (2023-07-02)
+
+### Fix
+
+- fix url parsing (#53)
+
 ## v0.11.1 (2023-06-10)
 
 ### Fix

@@ -51,7 +51,9 @@ def main(args=None):
         parsed_args.upsidedown,
         parsed_args.flip_horizontal,
         parsed_args.flip_vertical,
-        parsed_args.controls)
+        parsed_args.controls,
+        parsed_args.tuning_filter,
+        parsed_args.tuning_filter_dir)
 
     print('Available controls:\n'+str(picam2.camera_controls))
 
@@ -160,6 +162,11 @@ def get_parser():
                              '  r270   - Rotate 270 CW'
                         )
     parser.add_argument('-c', '--controls', default=[], type=str, nargs='*', help='Define controls to start with spyglass')
+    parser.add_argument('-tf', '--tuning_filter', type=str, default=None, nargs='?', const="",
+                        help='Set a tuning filter file name.')
+    parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",
+                        help='Set the directory to look for tuning filters.')
+
     return parser
 
 # endregion cli args
