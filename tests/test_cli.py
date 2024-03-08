@@ -353,12 +353,14 @@ def test_init_camera_flip_vertical(mock_spyglass_server, mock_spyglass_camera):
         DEFAULT_TUNING_FILTER_DIR
     )
 
-
-def test_init_camera_controls():
+@patch("spyglass.server.run_server")
+@patch("spyglass.camera.init_camera")
+def test_init_camera_controls(mock_spyglass_server, mock_spyglass_camera):
     from spyglass import cli
     import spyglass.camera
     cli.main(args=[
-        '-c', 'brightness=-0.4,awbenable=false'
+        '-c', 'brightness=-0.4',
+        '-c', 'awbenable=false'
     ])
     spyglass.camera.init_camera.assert_called_once_with(
         DEFAULT_WIDTH,
@@ -370,7 +372,7 @@ def test_init_camera_controls():
         DEFAULT_UPSIDE_DOWN,
         DEFAULT_FLIP_HORIZONTALLY,
         DEFAULT_FLIP_VERTICALLY,
-        ['brightness=-0.4','awbenable=false'],
+        [['brightness', '-0.4'],['awbenable', 'false']],
         DEFAULT_TUNING_FILTER,
         DEFAULT_TUNING_FILTER_DIR
     )
