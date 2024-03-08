@@ -1,5 +1,4 @@
 import io
-import re
 import logging
 import socketserver
 from http import server
@@ -26,7 +25,13 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-def run_server(bind_address, port, camera, output, stream_url='/stream', snapshot_url='/snapshot', orientation_exif=0):
+def run_server(bind_address,
+               port,
+               camera,
+               output: StreamingOutput,
+               stream_url='/stream',
+               snapshot_url='/snapshot',
+               orientation_exif=0):
     exif_header = create_exif_header(orientation_exif)
 
     class StreamingHandler(server.BaseHTTPRequestHandler):
@@ -35,10 +40,11 @@ def run_server(bind_address, port, camera, output, stream_url='/stream', snapsho
                 self.start_streaming()
             elif check_urls_match(snapshot_url, self.path):
                 self.send_snapshot()
-            elif check_urls_match('/options', self.path):
+            elif check_urls_match('/controls', self.path):
                 parsed_controls = get_url_params(self.path)
                 parsed_controls = parsed_controls if parsed_controls else None
                 processed_controls = process_controls(camera, parsed_controls)
+                camera.set_controls(processed_controls)
                 content = parse_dictionary_to_html_page(camera, parsed_controls, processed_controls).encode('utf-8')
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/html')
@@ -107,6 +113,7 @@ def run_server(bind_address, port, camera, output, stream_url='/stream', snapsho
     logger.info('Server listening on %s:%d', bind_address, port)
     logger.info('Streaming endpoint: %s', stream_url)
     logger.info('Snapshot endpoint: %s', snapshot_url)
+    logger.info('Controls endpoint: %s', '/controls')
     address = (bind_address, port)
     current_server = StreamingServer(address, StreamingHandler)
     current_server.serve_forever()

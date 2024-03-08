@@ -17,7 +17,7 @@ def parse_dictionary_to_html_page(camera, parsed_controls='None', processed_cont
                     <h3>Parsed Controls: {parsed_controls}</h3>
                     <h3>Processed Controls: {processed_controls}</h3>
             """
-    for control,values in camera.camera_controls.items():
+    for control, values in camera.camera_controls.items():
         html += f"""
                     <div class="card-container">
                         <div class="card">
@@ -49,24 +49,23 @@ def get_style():
     with (open('resources/controls_style.css', 'r')) as f:
         return f.read()
 
-def process_controls(camera, controls):
-    controls_dict = camera.camera_controls
-    controls_dict_lower = {k.lower(): k for k, v in controls_dict.items()}
-    processed_controls = []
+def process_controls(camera, controls: list[tuple[str, str]]) -> dict[str, any]:
+    controls_dict_lower = { k.lower(): k for k in camera.camera_controls.keys() }
     if controls == None:
-        return None
+        return {}
+    processed_controls = {}
     for key, value in controls:
         if key.lower() in controls_dict_lower.keys():
             type = get_type(value)
             k = controls_dict_lower[key.lower()]
             if bool == type:
-                camera.set_controls({k: value.lower() != 'false'})
+                v = value.lower() != 'false'
             else:
-                camera.set_controls({k: type(value)})
-            processed_controls.append((key, value))
+                v = type(value)
+            processed_controls[k] = v
     return processed_controls
 
-def get_type(input_string):
+def get_type(input_string: str):
     try:
         float_value = float(input_string)
         if float_value.is_integer():
@@ -75,8 +74,8 @@ def get_type(input_string):
             return float
     except ValueError:
         pass
-    
+
     if input_string.lower() in ['true', 'false']:
         return bool
-    
+
     return str

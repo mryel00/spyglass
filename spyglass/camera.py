@@ -1,5 +1,5 @@
 import libcamera
-import json
+from spyglass.camera_options import process_controls
 from picamera2 import Picamera2
 
 def init_camera(
@@ -12,7 +12,7 @@ def init_camera(
         upsidedown=False,
         flip_horizontal=False,
         flip_vertical=False,
-        control_list=[],
+        control_list: list[list[str]]=[],
         tuning_filter=None,
         tuning_filter_dir=None):
 
@@ -27,7 +27,7 @@ def init_camera(
     picam2 = Picamera2(tuning=tuning)
     controls = {'FrameRate': fps}
 
-    c = process_control_list(picam2, control_list)
+    c = process_controls(picam2, [tuple(ctrl) for ctrl in control_list])
     controls.update(c)
 
     if 'AfMode' in picam2.camera_controls:
@@ -43,25 +43,3 @@ def init_camera(
     picam2.configure(picam2.create_video_configuration(main={'size': (width, height)}, controls=controls, transform=transform))
 
     return picam2
-
-def process_control_list(camera, control_list):
-    controls_dict = camera.camera_controls
-    control_string = '{'
-    for control in control_list:
-        control = control.replace(' ', '').split(',') # parse config input
-        for c in control:
-            c = c.split('=')
-            control_string += f'"{c[0]}":{c[1].lower()},' # add each control in dictionary syntax, lower case value for parsing
-    control_string = control_string[0:-1] # delete last comma
-    control_string += '}'
-    try:
-        string_dict = json.loads(control_string)
-    except (TypeError, json.decoder.JSONDecodeError):
-        return {}
-    controls = {}
-    for key in string_dict:
-        for k in controls_dict:
-            if key.lower() == k.lower():
-                controls[k] = string_dict[key]
-
-    return controls
