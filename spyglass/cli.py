@@ -42,7 +42,8 @@ def main(args=None):
     snapshot_url = parsed_args.snapshot_url
     orientation_exif = parsed_args.orientation_exif
     controls = parsed_args.controls
-    controls += [c.split('=') for c in parsed_args.controls_string.split(',')]
+    if parsed_args.controls_string:
+        controls += [c.split('=') for c in parsed_args.controls_string.split(',')]
     picam2 = init_camera(
         width,
         height,
