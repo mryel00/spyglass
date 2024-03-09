@@ -162,9 +162,9 @@ def get_parser():
                              '  r270   - Rotate 270 CW'
                         )
     parser.add_argument('-c', '--controls', default=[], type=control_type, action='append',
-                        help='Define controls to start with spyglass. '
-                             'Can be specified multiple times.\n'
-                             'Format: <control>=<value>.')
+                        help='Define camera controls to start with spyglass. '
+                             'Can be used multiple times.\n'
+                             'Format: <control>=<value>')
     parser.add_argument('-tf', '--tuning_filter', type=str, default=None, nargs='?', const="",
                         help='Set a tuning filter file name.')
     parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",
