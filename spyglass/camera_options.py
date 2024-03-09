@@ -55,9 +55,11 @@ def process_controls(camera, controls: list[tuple[str, str]]) -> dict[str, any]:
         return {}
     processed_controls = {}
     for key, value in controls:
+        key = key.lower().strip()
         if key.lower() in controls_dict_lower.keys():
+            value = value.lower().strip()
             type = get_type(value)
-            k = controls_dict_lower[key.lower()]
+            k = controls_dict_lower[key]
             if bool == type:
                 v = value.lower() != 'false'
             else:

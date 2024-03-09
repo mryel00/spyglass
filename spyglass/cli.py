@@ -41,6 +41,8 @@ def main(args=None):
     stream_url = parsed_args.stream_url
     snapshot_url = parsed_args.snapshot_url
     orientation_exif = parsed_args.orientation_exif
+    controls = parsed_args.controls
+    controls += [c.split('=') for c in parsed_args.controls_string.split(',')]
     picam2 = init_camera(
         width,
         height,
@@ -165,6 +167,10 @@ def get_parser():
                         help='Define camera controls to start with spyglass. '
                              'Can be used multiple times.\n'
                              'Format: <control>=<value>')
+    parser.add_argument('-cs', '--controls-string', default='', type=str,
+                        help='Define camera controls to start with spyglass. '
+                             'Input as a long string.\n'
+                             'Format: <control1>=<value1> <control2>=<value2>')
     parser.add_argument('-tf', '--tuning_filter', type=str, default=None, nargs='?', const="",
                         help='Set a tuning filter file name.')
     parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",

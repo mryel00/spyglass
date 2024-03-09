@@ -106,7 +106,7 @@ run_spyglass() {
     --orientation_exif "${ORIENTATION_EXIF:-h}" \
     --tuning_filter "${TUNING_FILTER:-}"\
     --tuning_filter_dir "${TUNING_FILTER_DIR:-}" \
-    --controls "${CONTROLS:-0=0}" # 0=0 to prevent error on empty string
+    --controls-string "${CONTROLS:-0=0}" # 0=0 to prevent error on empty string
 }
 
 #### MAIN
