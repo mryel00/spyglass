@@ -53,7 +53,8 @@ On startup the following arguments are supported:
 | `-fh`, `--flip_horizontal`    | Mirror the image horizontally (see below)                                                                                          |              |
 | `-fv`, `--flip_vertical`      | Mirror the image vertically (see below)                                                                                            |              |
 | `-or`, `--orientation_exif`   | Set the image orientation using an EXIF header (see below)                                                                         |              |
-| `-c`, `--controls`            | Define camera controls to start with spyglass. Can be used multiple times. This argument expects the format \<control\>=\<value\>. |              |
+| `-c`, `--controls`            | Define camera controls to start spyglass with. Can be used multiple times. This argument expects the format \<control\>=\<value\>. |              |
+| `--list-controls`             | List all available libcamera controls onto the console. Those can be used with `--controls`                                        |              |
 | `-tf`, `--tuning_filter`      | Set a tuning filter file name.                                                                                                     |              |
 | `-tfd`, `--tuning_filter_dir` | Set the directory to look for tuning filters.                                                                                      |              |
 
@@ -197,7 +198,10 @@ set up to check commit messages pre commit.
 ### Problems when Committing to your Branch
 
  You may get the following error message when you try to push to your branch:
- ```w
+ ```
+  fatal: ambiguous argument 'origin/HEAD..HEAD': unknown revision or path not in the working tree.
+ Use '--' to separate paths from revisions, like this:
+ 'git <command> [<revision>...] -- [<file>...]'
  ```
  This error occurs when your HEAD branch is not properly set ([Stack Overflow](https://stackoverflow.com/a/8841024))
  To fix this run the following command:
