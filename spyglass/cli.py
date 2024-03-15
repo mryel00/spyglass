@@ -183,7 +183,7 @@ def get_parser():
                         help='Set a tuning filter file name.')
     parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",
                         help='Set the directory to look for tuning filters.')
-    parser.add_argument('--list-controls', action='store_true', help='List available camera controls')
+    parser.add_argument('--list-controls', action='store_true', help='List available camera controls and exits.')
 
     return parser
 
