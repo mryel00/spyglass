@@ -8,6 +8,7 @@ import re
 import sys
 
 import libcamera
+
 from picamera2.encoders import MJPEGEncoder
 from picamera2.outputs import FileOutput
 
@@ -16,6 +17,8 @@ from spyglass.__version__ import __version__
 from spyglass.camera import init_camera
 from spyglass.server import StreamingOutput
 from spyglass.server import run_server
+from spyglass import camera_options
+
 
 MAX_WIDTH = 1920
 MAX_HEIGHT = 1920
@@ -44,6 +47,10 @@ def main(args=None):
     controls = parsed_args.controls
     if parsed_args.controls_string:
         controls += [c.split('=') for c in parsed_args.controls_string.split(',')]
+    if parsed_args.list_controls:
+        print('Available controls:\n'+camera_options.get_libcamera_controls_string(0))
+        return
+
     picam2 = init_camera(
         width,
         height,
@@ -176,6 +183,7 @@ def get_parser():
                         help='Set a tuning filter file name.')
     parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",
                         help='Set the directory to look for tuning filters.')
+    parser.add_argument('--list-controls', action='store_true', help='List available camera controls')
 
     return parser
 

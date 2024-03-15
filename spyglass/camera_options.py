@@ -1,3 +1,4 @@
+import libcamera
 import ast
 
 def parse_dictionary_to_html_page(camera, parsed_controls='None', processed_controls='None'):
@@ -75,3 +76,30 @@ def parse_from_string(input_string: str) -> any:
         return input_string.lower() == 'true'
 
     return input_string
+
+def get_type_str(obj) -> str:
+    return str(type(obj)).split('\'')[1]
+
+def get_libcamera_controls_string(camera_path: str) -> str:
+    ctrls_str = ""
+    libcam_cm = libcamera.CameraManager.singleton()
+    cam = libcam_cm.cameras[0]
+    for k, v in cam.controls.items():
+        def rectangle_to_tuple(rectangle):
+            return (rectangle.x, rectangle.y, rectangle.width, rectangle.height)
+
+        if isinstance(v.min, libcamera.Rectangle):
+            min = rectangle_to_tuple(v.min)
+            max = rectangle_to_tuple(v.max)
+            default = rectangle_to_tuple(v.default)
+        else:
+            min = v.min
+            max = v.max
+            default = v.default
+
+        str_first = f"{k.name} ({get_type_str(min)})"
+        str_second = f"min={min} max={max} default={default}"
+        str_indent = (30 - len(str_first)) * ' ' + ': '
+        ctrls_str += str_first + str_indent + str_second + '\n'
+
+    return ctrls_str.strip()
