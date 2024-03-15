@@ -164,7 +164,7 @@ def get_parser():
                              '  mhr90  - Mirror horizontal and rotate 90 CW\n'
                              '  r270   - Rotate 270 CW'
                         )
-    parser.add_argument('-c', '--controls', default=[], type=control_type, action='append',
+    parser.add_argument('-c', '--controls', default=[], type=control_type, action='extend', nargs='*',
                         help='Define camera controls to start with spyglass. '
                              'Can be used multiple times.\n'
                              'Format: <control>=<value>')

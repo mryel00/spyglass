@@ -1,3 +1,5 @@
+import ast
+
 def parse_dictionary_to_html_page(camera, parsed_controls='None', processed_controls='None'):
     html =  """
             <!DOCTYPE html>
@@ -58,26 +60,18 @@ def process_controls(camera, controls: list[tuple[str, str]]) -> dict[str, any]:
         key = key.lower().strip()
         if key.lower() in controls_dict_lower.keys():
             value = value.lower().strip()
-            type = get_type(value)
             k = controls_dict_lower[key]
-            if bool == type:
-                v = value.lower() != 'false'
-            else:
-                v = type(value)
+            v = parse_from_string(value)
             processed_controls[k] = v
     return processed_controls
 
-def get_type(input_string: str):
+def parse_from_string(input_string: str) -> any:
     try:
-        float_value = float(input_string)
-        if float_value.is_integer():
-            return int
-        else:
-            return float
-    except ValueError:
+        return ast.literal_eval(input_string)
+    except (ValueError, TypeError, SyntaxError):
         pass
 
     if input_string.lower() in ['true', 'false']:
-        return bool
+        return input_string.lower() == 'true'
 
-    return str
+    return input_string
