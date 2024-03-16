@@ -65,8 +65,6 @@ def main(args=None):
         parsed_args.tuning_filter,
         parsed_args.tuning_filter_dir)
 
-    print('Available controls:\n'+str(picam2.camera_controls))
-
     output = StreamingOutput()
     picam2.start_recording(MJPEGEncoder(), FileOutput(output))
 
