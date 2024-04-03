@@ -1,23 +1,9 @@
 #!/usr/bin/python3
 
-import io
 import logging
 import socketserver
 from http import server
-from threading import Condition
 from . import logger
-
-
-class StreamingOutput(io.BufferedIOBase):
-    def __init__(self):
-        self.frame = None
-        self.condition = Condition()
-
-    def write(self, buf):
-        with self.condition:
-            self.frame = buf
-            self.condition.notify_all()
-
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
