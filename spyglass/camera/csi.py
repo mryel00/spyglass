@@ -59,7 +59,6 @@ class CSI(camera.Camera):
         self._run_server(
             bind_address,
             port,
-            output,
             StreamingHandler,
             get_frame,
             stream_url=stream_url,

@@ -17,6 +17,14 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.picam2 = None
+        self.exif_header = None
+        self.stream_url = None
+        self.snapshot_url = None
+        self.get_frame = None
+
     def do_GET(self):
         if check_urls_match(self.stream_url, self.path):
             self.start_streaming()

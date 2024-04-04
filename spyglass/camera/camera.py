@@ -42,7 +42,6 @@ class Camera(ABC):
     def _run_server(self,
             bind_address,
             port,
-            output,
             streaming_handler: StreamingHandler,
             get_frame,
             stream_url='/stream',
@@ -53,7 +52,6 @@ class Camera(ABC):
         logger.info('Snapshot endpoint: %s', snapshot_url)
         logger.info('Controls endpoint: %s', '/controls')
         address = (bind_address, port)
-        streaming_handler.output = output
         streaming_handler.picam2 = self.picam2
         streaming_handler.get_frame = get_frame
         streaming_handler.stream_url = stream_url

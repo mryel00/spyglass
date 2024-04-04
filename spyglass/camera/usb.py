@@ -34,7 +34,7 @@ class USB(camera.Camera):
             stream_url='/stream',
             snapshot_url='/snapshot',
             orientation_exif=0):
-        def get_frame(self2):
+        def get_frame(inner_self):
             #TODO: Cuts framerate in 1/n with n streams open, add some kind of buffer
             return self.picam2.capture_buffer()
 
@@ -43,7 +43,6 @@ class USB(camera.Camera):
         self._run_server(
             bind_address,
             port,
-            self.picam2,
             StreamingHandler,
             get_frame,
             stream_url=stream_url,
