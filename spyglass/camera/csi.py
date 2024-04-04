@@ -7,31 +7,8 @@ from threading import Condition
 
 from . import camera
 from ..server import StreamingHandler
-from ..camera_options import process_controls
 
 class CSI(camera.Camera):
-    def configure(self,
-                  control_list: list[list[str]]=[],
-                  upsidedown=False,
-                  flip_horizontal=False,
-                  flip_vertical=False):
-        controls = self.create_controls()
-        c = process_controls(self.picam2, [tuple(ctrl) for ctrl in control_list])
-        controls.update(c)
-
-        transform = libcamera.Transform(
-            hflip=int(flip_horizontal or upsidedown),
-            vflip=int(flip_vertical or upsidedown)
-        )
-
-        self.picam2.configure(
-            self.picam2.create_video_configuration(
-                main={'size': (self.width, self.height)},
-                controls=controls,
-                transform=transform
-            )
-        )
-
     def start_and_run_server(self,
             bind_address,
             port,

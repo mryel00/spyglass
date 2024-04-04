@@ -3,50 +3,65 @@ from picamera2 import Picamera2
 import libcamera
 from .. import logger
 from ..exif import create_exif_header
+from ..camera_options import process_controls
 from ..server import StreamingServer, StreamingHandler
 
 class Camera(ABC):
-    def __init__(self,
-            picam2: Picamera2,
-            width: int,
-            height: int,
-            fps: int,
-            autofocus: str,
-            lens_position: float,
-            autofocus_speed: str):
-
+    def __init__(self, picam2: Picamera2):
         self.picam2 = picam2
-        self.width = width
-        self.height = height
-        self.fps = fps
-        self.autofocus = autofocus
-        self.lens_position = lens_position
-        self.autofocus_speed = autofocus_speed
 
-    def create_controls(self):
+    def create_controls(self, fps: int, autofocus: str, lens_position: float, autofocus_speed: str):
         controls = {}
 
         if 'FrameRate' in self.picam2.camera_controls:
-            controls['FrameRate'] = self.fps
+            controls['FrameRate'] = fps
 
         if 'AfMode' in self.picam2.camera_controls:
-            controls['AfMode'] = self.autofocus
-            controls['AfSpeed'] = self.autofocus_speed
-            if self.autofocus == libcamera.controls.AfModeEnum.Manual:
-                controls['LensPosition'] = self.lens_position
+            controls['AfMode'] = autofocus
+            controls['AfSpeed'] = autofocus_speed
+            if autofocus == libcamera.controls.AfModeEnum.Manual:
+                controls['LensPosition'] = lens_position
         else:
             print('Attached camera does not support autofocus')
 
         return controls
 
+    def configure(self,
+                  width: int,
+                  height: int,
+                  fps: int,
+                  autofocus: str,
+                  lens_position: float,
+                  autofocus_speed: str,
+                  control_list: list[list[str]]=[],
+                  upsidedown=False,
+                  flip_horizontal=False,
+                  flip_vertical=False):
+        controls = self.create_controls(fps, autofocus, lens_position, autofocus_speed)
+        c = process_controls(self.picam2, [tuple(ctrl) for ctrl in control_list])
+        controls.update(c)
+
+        transform = libcamera.Transform(
+            hflip=int(flip_horizontal or upsidedown),
+            vflip=int(flip_vertical or upsidedown)
+        )
+
+        self.picam2.configure(
+            self.picam2.create_video_configuration(
+                main={'size': (width, height)},
+                controls=controls,
+                transform=transform
+            )
+        )
+
     def _run_server(self,
-            bind_address,
-            port,
-            streaming_handler: StreamingHandler,
-            get_frame,
-            stream_url='/stream',
-            snapshot_url='/snapshot',
-            orientation_exif=0):
+                    bind_address,
+                    port,
+                    streaming_handler: StreamingHandler,
+                    get_frame,
+                    stream_url='/stream',
+                    snapshot_url='/snapshot',
+                    orientation_exif=0):
         logger.info('Server listening on %s:%d', bind_address, port)
         logger.info('Streaming endpoint: %s', stream_url)
         logger.info('Snapshot endpoint: %s', snapshot_url)
@@ -64,22 +79,14 @@ class Camera(ABC):
         current_server.serve_forever()
 
     @abstractmethod
-    def configure(self,
-                  control_list: list[list[str]]=[],
-                  upsidedown=False,
-                  flip_horizontal=False,
-                  flip_vertical=False):
-        pass
-
-    @abstractmethod
-    def stop(self):
-        pass
-
-    @abstractmethod
     def start_and_run_server(self,
             bind_address,
             port,
             stream_url='/stream',
             snapshot_url='/snapshot',
             orientation_exif=0):
+        pass
+
+    @abstractmethod
+    def stop(self):
         pass

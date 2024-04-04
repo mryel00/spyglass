@@ -33,12 +33,7 @@ def main(args=None):
 
     parsed_args = get_args(args)
 
-    bind_address = parsed_args.bindaddress
-    port = parsed_args.port
     width, height = split_resolution(parsed_args.resolution)
-    stream_url = parsed_args.stream_url
-    snapshot_url = parsed_args.snapshot_url
-    orientation_exif = parsed_args.orientation_exif
     controls = parsed_args.controls
     if parsed_args.controls_string:
         controls += [c.split('=') for c in parsed_args.controls_string.split(',')]
@@ -48,20 +43,25 @@ def main(args=None):
 
     cam = init_camera(
         parsed_args.camera_num,
-        width,
-        height,
-        parsed_args.fps,
-        parse_autofocus(parsed_args.autofocus),
-        parsed_args.lensposition,
-        parse_autofocus_speed(parsed_args.autofocusspeed),
-        parsed_args.upsidedown,
-        parsed_args.flip_horizontal,
-        parsed_args.flip_vertical,
-        parsed_args.controls,
         parsed_args.tuning_filter,
         parsed_args.tuning_filter_dir)
+
+    cam.configure(width,
+                  height,
+                  parsed_args.fps,
+                  parse_autofocus(parsed_args.autofocus),
+                  parsed_args.lensposition,
+                  parse_autofocus_speed(parsed_args.autofocusspeed),
+                  parsed_args.controls,
+                  parsed_args.upsidedown,
+                  parsed_args.flip_horizontal,
+                  parsed_args.flip_vertical,)
     try:
-        cam.start_and_run_server(bind_address, port, stream_url, snapshot_url, orientation_exif)
+        cam.start_and_run_server(parsed_args.bind_address,
+                                 parsed_args.port,
+                                 parsed_args.stream_url,
+                                 parsed_args.snapshot_url,
+                                 parsed_args.orientation_exif)
     finally:
         cam.stop()
 

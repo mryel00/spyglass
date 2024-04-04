@@ -12,10 +12,6 @@ def init_camera(
         autofocus: str,
         lens_position: float,
         autofocus_speed: str,
-        upsidedown=False,
-        flip_horizontal=False,
-        flip_vertical=False,
-        control_list: list[list[str]]=[],
         tuning_filter=None,
         tuning_filter_dir=None
         ) -> Camera:
@@ -32,5 +28,4 @@ def init_camera(
         cam = CSI(picam2, width, height, fps, autofocus, lens_position, autofocus_speed)
     else:
         cam = USB(picam2, width, height, fps, autofocus, lens_position, autofocus_speed)
-    cam.configure(control_list, upsidedown, flip_horizontal, flip_vertical)
     return cam
