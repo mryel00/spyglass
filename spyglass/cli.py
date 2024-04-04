@@ -175,11 +175,11 @@ def get_parser():
                         help='Define camera controls to start with spyglass. '
                              'Input as a long string.\n'
                              'Format: <control1>=<value1> <control2>=<value2>')
+    parser.add_argument('--list-controls', action='store_true', help='List available camera controls and exits.')
     parser.add_argument('-tf', '--tuning_filter', type=str, default=None, nargs='?', const="",
                         help='Set a tuning filter file name.')
     parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",
                         help='Set the directory to look for tuning filters.')
-    parser.add_argument('--list-controls', action='store_true', help='List available camera controls and exits.')
     parser.add_argument('-n', '--camera_num', type=int, default=0, help='Camera number to be used')
     return parser
 
