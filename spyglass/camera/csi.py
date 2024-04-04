@@ -12,9 +12,9 @@ from ..camera_options import process_controls
 class CSI(camera.Camera):
     def configure(self,
                   control_list: list[list[str]]=[],
+                  upsidedown=False,
                   flip_horizontal=False,
-                  flip_vertical=False,
-                  upsidedown=False):
+                  flip_vertical=False):
         controls = self.create_controls()
         c = process_controls(self.picam2, [tuple(ctrl) for ctrl in control_list])
         controls.update(c)
@@ -38,7 +38,7 @@ class CSI(camera.Camera):
             stream_url='/stream',
             snapshot_url='/snapshot',
             orientation_exif=0):
-        
+
         class StreamingOutput(io.BufferedIOBase):
             def __init__(self):
                 self.frame = None
@@ -49,12 +49,19 @@ class CSI(camera.Camera):
                     self.frame = buf
                     self.condition.notify_all()
         output = StreamingOutput()
+        def get_frame(self):
+            with output.condition:
+                output.condition.wait()
+                return output.frame
+
         self.picam2.start_recording(MJPEGEncoder(), FileOutput(output))
+
         self._run_server(
             bind_address,
             port,
             output,
-            StreamingHandler(),
+            StreamingHandler,
+            get_frame,
             stream_url=stream_url,
             snapshot_url=snapshot_url,
             orientation_exif=orientation_exif

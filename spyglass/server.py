@@ -17,58 +17,6 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
-    @property
-    def output(self):
-        return self._output
-
-    @output.setter
-    def output(self, value):
-        self._output = value
-
-    @property
-    def picam2(self):
-        return self._picam2
-
-    @picam2.setter
-    def picam2(self, value):
-        self._picam2 = value
-
-    @property
-    def stream_url(self):
-        try:
-            return self._stream_url
-        except NameError:
-            return '/stream'
-
-    @stream_url.setter
-    def stream_url(self, value):
-        self._stream_url = value
-
-    @property
-    def snapshot_url(self):
-        try:
-            return self._snapshot_url
-        except NameError:
-            return '/snapshot'
-
-    @snapshot_url.setter
-    def snapshot_url(self, value):
-        self._snapshot_url = value
-
-    @property
-    def exif_header(self):
-        try:
-            return self._exif_header
-        except NameError:
-            return None
-
-    @exif_header.setter
-    def exif_header(self, orientation_exif):
-        if orientation_exif > 0:
-            self._exif_header = create_exif_header(orientation_exif)
-        else:
-            self._exif_header = None    
-
     def do_GET(self):
         if check_urls_match(self.stream_url, self.path):
             self.start_streaming()
@@ -139,8 +87,3 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
     def send_jpeg_content_headers(self, frame, extra_len=0):
         self.send_header('Content-Type', 'image/jpeg')
         self.send_header('Content-Length', str(len(frame) + extra_len))
-
-    def get_frame(self):
-        with self.output.condition:
-            self.output.condition.wait()
-            return self.output.frame

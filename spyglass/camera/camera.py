@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 from picamera2 import Picamera2
+import libcamera
 from .. import logger
-from .. server import StreamingServer, StreamingHandler
+from ..exif import create_exif_header
+from ..server import StreamingServer, StreamingHandler
 
 class Camera(ABC):
     def __init__(self,
@@ -22,12 +24,15 @@ class Camera(ABC):
         self.autofocus_speed = autofocus_speed
 
     def create_controls(self):
-        controls = {'FrameRate': self.fps}
+        controls = {}
+
+        if 'FrameRate' in self.picam2.camera_controls:
+            controls['FrameRate'] = self.fps
 
         if 'AfMode' in self.picam2.camera_controls:
             controls['AfMode'] = self.autofocus
             controls['AfSpeed'] = self.autofocus_speed
-            if self.autofocus == self.libcamera.controls.AfModeEnum.Manual:
+            if self.autofocus == libcamera.controls.AfModeEnum.Manual:
                 controls['LensPosition'] = self.lens_position
         else:
             print('Attached camera does not support autofocus')
@@ -39,6 +44,7 @@ class Camera(ABC):
             port,
             output,
             streaming_handler: StreamingHandler,
+            get_frame,
             stream_url='/stream',
             snapshot_url='/snapshot',
             orientation_exif=0):
@@ -49,18 +55,22 @@ class Camera(ABC):
         address = (bind_address, port)
         streaming_handler.output = output
         streaming_handler.picam2 = self.picam2
+        streaming_handler.get_frame = get_frame
         streaming_handler.stream_url = stream_url
         streaming_handler.snapshot_url = snapshot_url
-        streaming_handler.exif_header = orientation_exif
+        if orientation_exif > 0:
+            streaming_handler.exif_header = create_exif_header(orientation_exif)
+        else:
+            streaming_handler.exif_header = None
         current_server = StreamingServer(address, streaming_handler)
         current_server.serve_forever()
 
     @abstractmethod
     def configure(self,
                   control_list: list[list[str]]=[],
+                  upsidedown=False,
                   flip_horizontal=False,
-                  flip_vertical=False,
-                  upsidedown=False):
+                  flip_vertical=False):
         pass
 
     @abstractmethod

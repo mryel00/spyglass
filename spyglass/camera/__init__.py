@@ -29,8 +29,8 @@ def init_camera(
 
     picam2 = Picamera2(camera_num, tuning=tuning)
     if picam2._is_rpi_camera():
-        cam = CSI(width, height, fps, autofocus, lens_position, autofocus_speed)
+        cam = CSI(picam2, width, height, fps, autofocus, lens_position, autofocus_speed)
     else:
-        cam = USB(width, height, fps, autofocus, lens_position, autofocus_speed)
+        cam = USB(picam2, width, height, fps, autofocus, lens_position, autofocus_speed)
     cam.configure(control_list, upsidedown, flip_horizontal, flip_vertical)
     return cam
