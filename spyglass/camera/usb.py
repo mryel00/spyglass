@@ -1,16 +1,30 @@
+import libcamera
+
 from . import camera
 
 from spyglass.server import StreamingHandler, StreamingServer
-from .. import logger
+from ..camera_options import process_controls
 
 class USB(camera.Camera):
-    def configure(self):
+    def configure(self,
+                  control_list: list[list[str]]=[],
+                  flip_horizontal=False,
+                  flip_vertical=False,
+                  upsidedown=False):
         controls = self.create_controls()
+        c = process_controls(self.picam2, [tuple(ctrl) for ctrl in control_list])
+        controls.update(c)
+
+        transform = libcamera.Transform(
+            hflip=int(flip_horizontal or upsidedown),
+            vflip=int(flip_vertical or upsidedown)
+        )
 
         self.picam2.configure(
             self.picam2.create_preview_configuration(
                 main={'size': (self.width, self.height), 'format': 'MJPEG'},
-                controls=controls
+                controls=controls,
+                transform=transform
             )
         )
 
@@ -18,7 +32,8 @@ class USB(camera.Camera):
             bind_address,
             port,
             stream_url='/stream',
-            snapshot_url='/snapshot'):
+            snapshot_url='/snapshot',
+            orientation_exif=0):
         class StreamingHandlerUSB(StreamingHandler):
             def get_frame(self):
                 #TODO: Cuts framerate in 1/n with n streams open, add some kind of buffer
@@ -30,8 +45,9 @@ class USB(camera.Camera):
             self.picam2,
             StreamingHandlerUSB(),
             stream_url=stream_url,
-            snapshot_url=snapshot_url
+            snapshot_url=snapshot_url,
+            orientation_exif=orientation_exif
         )
-    
+
     def stop(self):
         self.picam2.stop()

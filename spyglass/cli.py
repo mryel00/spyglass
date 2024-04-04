@@ -1,12 +1,23 @@
-"""cli entry point for hellocli.
+"""cli entry point for spyglass.
 
-Parse command line arguments in, invoke hello.
+Parse command line arguments in, invoke server.
 """
 import argparse
-import sys
-import libcamera
+import logging
 import re
+import sys
+
+import libcamera
+
+from . import camera_options
+from .exif import option_to_exif_orientation
+from .__version__ import __version__
 from .camera import init_camera
+
+
+MAX_WIDTH = 1920
+MAX_HEIGHT = 1920
+
 
 def main(args=None):
     """Entry point for hello cli.
@@ -15,6 +26,8 @@ def main(args=None):
     becomes sys.exit(main()).
     The __main__ entry point similarly wraps sys.exit().
     """
+    logging.info(f"Spyglass {__version__}")
+
     if args is None:
         args = sys.argv[1:]
 
@@ -25,16 +38,30 @@ def main(args=None):
     width, height = split_resolution(parsed_args.resolution)
     stream_url = parsed_args.stream_url
     snapshot_url = parsed_args.snapshot_url
+    orientation_exif = parsed_args.orientation_exif
+    controls = parsed_args.controls
+    if parsed_args.controls_string:
+        controls += [c.split('=') for c in parsed_args.controls_string.split(',')]
+    if parsed_args.list_controls:
+        print('Available controls:\n'+camera_options.get_libcamera_controls_string(0))
+        return
 
-    cam = init_camera(width,
-                      height,
-                      parsed_args.fps,
-                      parse_autofocus(parsed_args.autofocus),
-                      parsed_args.lensposition,
-                      parse_autofocus_speed(parsed_args.autofocusspeed),
-                      parsed_args.camera_num)
+    cam = init_camera(
+        parsed_args.camera_num,
+        width,
+        height,
+        parsed_args.fps,
+        parse_autofocus(parsed_args.autofocus),
+        parsed_args.lensposition,
+        parse_autofocus_speed(parsed_args.autofocusspeed),
+        parsed_args.upsidedown,
+        parsed_args.flip_horizontal,
+        parsed_args.flip_vertical,
+        parsed_args.controls,
+        parsed_args.tuning_filter,
+        parsed_args.tuning_filter_dir)
     try:
-        cam.start_and_run_server(bind_address, port, stream_url, snapshot_url)
+        cam.start_and_run_server(bind_address, port, stream_url, snapshot_url, orientation_exif)
     finally:
         cam.stop()
 
@@ -47,12 +74,20 @@ def resolution_type(arg_value, pat=re.compile(r"^\d+x\d+$")):
     return arg_value
 
 
+def orientation_type(arg_value):
+    if arg_value in option_to_exif_orientation:
+        return option_to_exif_orientation[arg_value]
+    else:
+        raise argparse.ArgumentTypeError(f"invalid value: unknown orientation {arg_value}.")
+
+
 def parse_autofocus(arg_value):
     if arg_value == 'manual':
         return libcamera.controls.AfModeEnum.Manual
     elif arg_value == 'continuous':
         return libcamera.controls.AfModeEnum.Continuous
-    raise argparse.ArgumentTypeError("invalid value: manual or continuous expected.")
+    else:
+        raise argparse.ArgumentTypeError("invalid value: manual or continuous expected.")
 
 
 def parse_autofocus_speed(arg_value):
@@ -60,14 +95,24 @@ def parse_autofocus_speed(arg_value):
         return libcamera.controls.AfSpeedEnum.Normal
     elif arg_value == 'fast':
         return libcamera.controls.AfSpeedEnum.Fast
-    raise argparse.ArgumentTypeError("invalid value: normal or fast expected.")
+    else:
+        raise argparse.ArgumentTypeError("invalid value: normal or fast expected.")
 
 
 def split_resolution(res):
     parts = res.split('x')
     w = int(parts[0])
     h = int(parts[1])
+    if w > MAX_WIDTH or h > MAX_HEIGHT:
+        raise argparse.ArgumentTypeError("Maximum supported resolution is 1920x1920")
     return w, h
+
+
+def control_type(arg_value: str):
+    if '=' in arg_value:
+        return arg_value.split('=')
+    else:
+        raise argparse.ArgumentTypeError(f"Invalid control: Missing value: {arg_value}")
 
 
 # endregion args parsers
@@ -92,7 +137,7 @@ def get_parser():
                                                                                  'connections')
     parser.add_argument('-p', '--port', type=int, default=8080, help='Bind to port for incoming connections')
     parser.add_argument('-r', '--resolution', type=resolution_type, default='640x480',
-                        help='Resolution of the images width x height')
+                        help='Resolution of the images width x height. Maximum is 1920x1920.')
     parser.add_argument('-f', '--fps', type=int, default=15, help='Frames per second to capture')
     parser.add_argument('-st', '--stream_url', type=str, default='/stream',
                         help='Sets the URL for the mjpeg stream')
@@ -105,6 +150,36 @@ def get_parser():
                              'Only used with Autofocus manual')
     parser.add_argument('-s', '--autofocusspeed', type=str, default='normal', choices=['normal', 'fast'],
                         help='Autofocus speed. Only used with Autofocus continuous')
+    parser.add_argument('-ud', '--upsidedown', action='store_true',
+                        help='Rotate the image by 180° (sensor level)')
+    parser.add_argument('-fh', '--flip_horizontal', action='store_true',
+                        help='Mirror the image horizontally (sensor level)')
+    parser.add_argument('-fv', '--flip_vertical', action='store_true',
+                        help='Mirror the image vertically (sensor level)')
+    parser.add_argument('-or', '--orientation_exif', type=orientation_type, default='h',
+                        help='Set the image orientation using an EXIF header:\n'
+                             '  h      - Horizontal (normal)\n'
+                             '  mh     - Mirror horizontal\n'
+                             '  r180   - Rotate 180\n'
+                             '  mv     - Mirror vertical\n'
+                             '  mhr270 - Mirror horizontal and rotate 270 CW\n'
+                             '  r90    - Rotate 90 CW\n'
+                             '  mhr90  - Mirror horizontal and rotate 90 CW\n'
+                             '  r270   - Rotate 270 CW'
+                        )
+    parser.add_argument('-c', '--controls', default=[], type=control_type, action='extend', nargs='*',
+                        help='Define camera controls to start with spyglass. '
+                             'Can be used multiple times.\n'
+                             'Format: <control>=<value>')
+    parser.add_argument('-cs', '--controls-string', default='', type=str,
+                        help='Define camera controls to start with spyglass. '
+                             'Input as a long string.\n'
+                             'Format: <control1>=<value1> <control2>=<value2>')
+    parser.add_argument('-tf', '--tuning_filter', type=str, default=None, nargs='?', const="",
+                        help='Set a tuning filter file name.')
+    parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",
+                        help='Set the directory to look for tuning filters.')
+    parser.add_argument('--list-controls', action='store_true', help='List available camera controls and exits.')
     parser.add_argument('-n', '--camera_num', type=int, default=0, help='Camera number to be used')
     return parser
 

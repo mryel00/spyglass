@@ -19,7 +19,7 @@ class Camera(ABC):
         self.fps = fps
         self.autofocus = autofocus
         self.lens_position = lens_position
-        self.autofocus_speed = autofocus_speed  
+        self.autofocus_speed = autofocus_speed
 
     def create_controls(self):
         controls = {'FrameRate': self.fps}
@@ -40,19 +40,27 @@ class Camera(ABC):
             output,
             streaming_handler: StreamingHandler,
             stream_url='/stream',
-            snapshot_url='/snapshot'):
+            snapshot_url='/snapshot',
+            orientation_exif=0):
         logger.info('Server listening on %s:%d', bind_address, port)
         logger.info('Streaming endpoint: %s', stream_url)
         logger.info('Snapshot endpoint: %s', snapshot_url)
+        logger.info('Controls endpoint: %s', '/controls')
         address = (bind_address, port)
         streaming_handler.output = output
+        streaming_handler.picam2 = self.picam2
         streaming_handler.stream_url = stream_url
         streaming_handler.snapshot_url = snapshot_url
+        streaming_handler.exif_header = orientation_exif
         current_server = StreamingServer(address, streaming_handler)
         current_server.serve_forever()
 
     @abstractmethod
-    def configure(self):
+    def configure(self,
+                  control_list: list[list[str]]=[],
+                  flip_horizontal=False,
+                  flip_vertical=False,
+                  upsidedown=False):
         pass
 
     @abstractmethod
@@ -64,5 +72,6 @@ class Camera(ABC):
             bind_address,
             port,
             stream_url='/stream',
-            snapshot_url='/snapshot'):
+            snapshot_url='/snapshot',
+            orientation_exif=0):
         pass

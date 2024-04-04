@@ -3,22 +3,88 @@
 import logging
 import socketserver
 from http import server
-from . import logger
+import io
+import logging
+import socketserver
+from http import server
+from threading import Condition
+from spyglass.url_parsing import check_urls_match, get_url_params
+from spyglass.exif import create_exif_header
+from spyglass.camera_options import parse_dictionary_to_html_page, process_controls
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
-    output = None
-    stream_url = ''
-    snapshot_url = ''
+    @property
+    def output(self):
+        return self._output
+
+    @output.setter
+    def output(self, value):
+        self._output = value
+
+    @property
+    def picam2(self):
+        return self._picam2
+
+    @picam2.setter
+    def picam2(self, value):
+        self._picam2 = value
+
+    @property
+    def stream_url(self):
+        try:
+            return self._stream_url
+        except NameError:
+            return '/stream'
+
+    @stream_url.setter
+    def stream_url(self, value):
+        self._stream_url = value
+
+    @property
+    def snapshot_url(self):
+        try:
+            return self._snapshot_url
+        except NameError:
+            return '/snapshot'
+
+    @snapshot_url.setter
+    def snapshot_url(self, value):
+        self._snapshot_url = value
+
+    @property
+    def exif_header(self):
+        try:
+            return self._exif_header
+        except NameError:
+            return None
+
+    @exif_header.setter
+    def exif_header(self, orientation_exif):
+        if orientation_exif > 0:
+            self._exif_header = create_exif_header(orientation_exif)
+        else:
+            self._exif_header = None    
 
     def do_GET(self):
-        if self.path == self.stream_url:
+        if check_urls_match(self.stream_url, self.path):
             self.start_streaming()
-        elif self.path == self.snapshot_url:
+        elif check_urls_match(self.snapshot_url, self.path):
             self.send_snapshot()
+        elif check_urls_match('/controls', self.path):
+            parsed_controls = get_url_params(self.path)
+            parsed_controls = parsed_controls if parsed_controls else None
+            processed_controls = process_controls(self.picam2, parsed_controls)
+            self.picam2.set_controls(processed_controls)
+            content = parse_dictionary_to_html_page(self.picam2, parsed_controls, processed_controls).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.send_header('Content-Length', len(content))
+            self.end_headers()
+            self.wfile.write(content)
         else:
             self.send_error(404)
             self.end_headers()
@@ -32,10 +98,17 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             while True:
                 frame = self.get_frame()
                 self.wfile.write(b'--FRAME\r\n')
-                self.send_jpeg_content_headers(frame)
-                self.end_headers()
-                self.wfile.write(frame)
-                self.wfile.write(b'\r\n')
+                if self.exif_header is None:
+                    self.send_jpeg_content_headers(frame)
+                    self.end_headers()
+                    self.wfile.write(frame)
+                    self.wfile.write(b'\r\n')
+                else:
+                    self.send_jpeg_content_headers(frame, len(self.exif_header) - 2)
+                    self.end_headers()
+                    self.wfile.write(self.exif_header)
+                    self.wfile.write(frame[2:])
+                    self.wfile.write(b'\r\n')
         except Exception as e:
             logging.warning('Removed streaming client %s: %s', self.client_address, str(e))
 
@@ -44,9 +117,15 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_default_headers()
             frame = self.get_frame()
-            self.send_jpeg_content_headers(frame)
-            self.end_headers()
-            self.wfile.write(frame)
+            if self.exif_header is None:
+                self.send_jpeg_content_headers(frame)
+                self.end_headers()
+                self.wfile.write(frame)
+            else:
+                self.send_jpeg_content_headers(frame, len(self.exif_header) - 2)
+                self.end_headers()
+                self.wfile.write(self.exif_header)
+                self.wfile.write(frame[2:])
         except Exception as e:
             logging.warning(
                 'Removed client %s: %s',
@@ -57,23 +136,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         self.send_header('Cache-Control', 'no-cache, private')
         self.send_header('Pragma', 'no-cache')
 
-    def send_jpeg_content_headers(self, frame):
+    def send_jpeg_content_headers(self, frame, extra_len=0):
         self.send_header('Content-Type', 'image/jpeg')
-        self.send_header('Content-Length', len(frame))
+        self.send_header('Content-Length', str(len(frame) + extra_len))
 
     def get_frame(self):
         with self.output.condition:
             self.output.condition.wait()
             return self.output.frame
-
-def run_server(bind_address, port, output, stream_url='/stream', snapshot_url='/snapshot'):
-    logger.info('Server listening on %s:%d', bind_address, port)
-    logger.info('Streaming endpoint: %s', stream_url)
-    logger.info('Snapshot endpoint: %s', snapshot_url)
-    address = (bind_address, port)
-    streaming_handler = StreamingHandler
-    streaming_handler.output = output
-    streaming_handler.stream_url = stream_url
-    streaming_handler.snapshot_url = snapshot_url
-    current_server = StreamingServer(address, streaming_handler)
-    current_server.serve_forever()

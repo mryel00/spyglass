@@ -1,1 +1,1 @@
-setuptools~=66.1.1
+setuptools~=69.0.3
