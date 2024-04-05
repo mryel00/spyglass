@@ -6,12 +6,6 @@ from picamera2 import Picamera2
 
 def init_camera(
         camera_num: int,
-        width: int,
-        height: int,
-        fps: int,
-        autofocus: str,
-        lens_position: float,
-        autofocus_speed: str,
         tuning_filter=None,
         tuning_filter_dir=None
         ) -> Camera:
@@ -25,7 +19,7 @@ def init_camera(
 
     picam2 = Picamera2(camera_num, tuning=tuning)
     if picam2._is_rpi_camera():
-        cam = CSI(picam2, width, height, fps, autofocus, lens_position, autofocus_speed)
+        cam = CSI(picam2)
     else:
-        cam = USB(picam2, width, height, fps, autofocus, lens_position, autofocus_speed)
+        cam = USB(picam2)
     return cam
