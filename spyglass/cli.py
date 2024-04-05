@@ -57,7 +57,7 @@ def main(args=None):
                   parsed_args.flip_horizontal,
                   parsed_args.flip_vertical,)
     try:
-        cam.start_and_run_server(parsed_args.bind_address,
+        cam.start_and_run_server(parsed_args.bindaddress,
                                  parsed_args.port,
                                  parsed_args.stream_url,
                                  parsed_args.snapshot_url,
