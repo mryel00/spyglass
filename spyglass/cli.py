@@ -61,7 +61,7 @@ def main(args=None):
         parsed_args.upsidedown,
         parsed_args.flip_horizontal,
         parsed_args.flip_vertical,
-        parsed_args.controls,
+        controls,
         parsed_args.tuning_filter,
         parsed_args.tuning_filter_dir)
 
