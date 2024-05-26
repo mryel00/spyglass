@@ -82,6 +82,12 @@ def resolution_type(arg_value, pat=re.compile(r"^\d+x\d+$")):
         raise argparse.ArgumentTypeError("invalid value: <width>x<height> expected.")
     return arg_value
 
+def control_type(arg_value: str):
+    if '=' in arg_value:
+        return arg_value.split('=')
+    else:
+        raise argparse.ArgumentTypeError(f"invalid control: Missing value: {arg_value}")
+
 
 def orientation_type(arg_value):
     if arg_value in option_to_exif_orientation:
@@ -115,7 +121,6 @@ def split_resolution(res):
     if w > MAX_WIDTH or h > MAX_HEIGHT:
         raise argparse.ArgumentTypeError("Maximum supported resolution is 1920x1920")
     return w, h
-
 
 # endregion args parsers
 
@@ -184,11 +189,5 @@ def get_parser():
     parser.add_argument('--list-controls', action='store_true', help='List available camera controls and exits.')
 
     return parser
-
-def control_type(arg_value: str):
-    if '=' in arg_value:
-        return arg_value.split('=')
-    else:
-        raise argparse.ArgumentTypeError(f"Invalid control: Missing value: {arg_value}")
 
 # endregion cli args
