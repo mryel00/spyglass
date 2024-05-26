@@ -199,7 +199,7 @@ set up to check commit messages pre commit.
 
  You may get the following error message when you try to push to your branch:
  ```
-  fatal: ambiguous argument 'origin/HEAD..HEAD': unknown revision or path not in the working tree.
+ fatal: ambiguous argument 'origin/HEAD..HEAD': unknown revision or path not in the working tree.
  Use '--' to separate paths from revisions, like this:
  'git <command> [<revision>...] -- [<file>...]'
  ```
