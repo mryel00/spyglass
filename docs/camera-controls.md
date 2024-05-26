@@ -1,12 +1,12 @@
-Spyglass offers a few CLI parameters to make easier use of the most commonly used camera controls.
-To use controls not directly available through the CLI you can use the `--controls` (`-c`) or `--controls-string` (`-cs`) parameter or the `CONTROLS` section inside the `spyglass.conf`.
+Spyglass offers a few CLI parameters for the most commonly used camera controls.
+Controls not directly available through the CLI can be used with the `--controls` (`-c`) or `--controls-string` (`-cs`) parameters or the `CONTROLS` section inside the `spyglass.conf`.
 
 
 ## How to list available controls?
 
-Spyglass provides a CLI parameter to list all available controls `--list-controls`. The available controls are then listed onto your shell under `Available controls:`.
+Spyglass provides a CLI parameter to list all available controls `--list-controls`. The available controls are then printed onto your shell under `Available controls:`.
 
-Following shows the available controls of a Raspberry Pi Module v3:
+Following shows an example for a Raspberry Pi Module v3:
 ```sh
 Available controls:
 NoiseReductionMode (int)      : min=0 max=4 default=0
@@ -37,7 +37,7 @@ Saturation (float)            : min=0.0 max=32.0 default=1.0
 ```
 
 
-## How to correctly apply a camera control?
+## How to apply a camera control?
 
 There are multiple ways to apply a camera control. All methods are case insensitive.
 
@@ -52,7 +52,7 @@ There are two different parameters to apply the controls:
 
 The `spyglass.conf` accepts camera controls under the `CONTROLS` option. E.g. `CONTROLS="brightness=0,awbenable=false"` will apply `0.5` to the `Brightness` and `False` as the new `AwbEnable` value.
 
-### API endpoint
+### Webinterface
 
 Spyglass also provides an API endpoint to change the camera controls during runtime. This endpoint is available under `http://<ip.of.your.pi>:<port>/controls` and cannot be changed.
 
@@ -60,8 +60,8 @@ Calling it without any parameters will show you a list of all available controls
 
 E.g. `http://<ip.of.your.pi>:<port>/controls?brightness=0.5&awbenable=false` will apply `0.5` to the `Brightness` and `False` as the new `AwbEnable` value.
 
-If you apply parameters it will show you what parameters it found inside the call and which controls got actually processed:
-- `Parsed Controls` shows you the parameters it found during the request.
-- `Processed Controls` shows you the parameters of the `Parsed Controls` it could actually set for the cam. 
+If you apply parameters the interface will show you the parameters Spyglass found inside the url and which controls got actually processed:
+- `Parsed Controls` shows you the parameters Spyglass found during the request.
+- `Processed Controls` shows you the parameters of the `Parsed Controls` Spyglass could actually set for the cam. 
 
 E.g. `http://<ip.of.your.pi>:<port>/controls?brightness=0.5&foo=bar&foobar` will show you `Parsed Controls: [('brightness', '1'), ('foo', 'bar')]` and `Processed Controls: {'Brightness': 1}`.
