@@ -18,6 +18,7 @@ all:
 	$(MAKE) help
 
 install: ## Install Spyglass as service
+	@mkdir -p $(CONF_PATH)
 	@printf "\nCopying systemd service file ...\n"
 	@sudo cp -f "${PWD}/resources/spyglass.service" $(SYSTEMD)
 	@sudo sed -i "s/%USER%/$(USER)/g" $(SYSTEMD)/spyglass.service
