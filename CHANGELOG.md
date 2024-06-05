@@ -1,3 +1,9 @@
+## v0.14.0 (2024-06-05)
+
+### Feat
+
+- Expand camera control ability (#14)
+
 ## v0.13.1 (2024-06-05)
 
 ### Fix
