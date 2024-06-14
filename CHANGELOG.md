@@ -1,3 +1,15 @@
+## v0.14.0 (2024-06-05)
+
+### Feat
+
+- Expand camera control ability (#14)
+
+## v0.13.1 (2024-06-05)
+
+### Fix
+
+- **install**: fix missing directory during install (#73)
+
 ## v0.13.0 (2023-07-22)
 
 ### Feat

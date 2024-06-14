@@ -52,7 +52,7 @@ def main(args=None):
                   parse_autofocus(parsed_args.autofocus),
                   parsed_args.lensposition,
                   parse_autofocus_speed(parsed_args.autofocusspeed),
-                  parsed_args.controls,
+                  controls,
                   parsed_args.upsidedown,
                   parsed_args.flip_horizontal,
                   parsed_args.flip_vertical,)
@@ -67,11 +67,17 @@ def main(args=None):
 
 # region args parsers
 
-
 def resolution_type(arg_value, pat=re.compile(r"^\d+x\d+$")):
     if not pat.match(arg_value):
         raise argparse.ArgumentTypeError("invalid value: <width>x<height> expected.")
     return arg_value
+
+
+def control_type(arg_value: str):
+    if '=' in arg_value:
+        return arg_value.split('=')
+    else:
+        raise argparse.ArgumentTypeError(f"invalid control: Missing value: {arg_value}")
 
 
 def orientation_type(arg_value):
@@ -107,19 +113,10 @@ def split_resolution(res):
         raise argparse.ArgumentTypeError("Maximum supported resolution is 1920x1920")
     return w, h
 
-
-def control_type(arg_value: str):
-    if '=' in arg_value:
-        return arg_value.split('=')
-    else:
-        raise argparse.ArgumentTypeError(f"Invalid control: Missing value: {arg_value}")
-
-
 # endregion args parsers
 
 
 # region cli args
-
 
 def get_args(args):
     """Parse arguments passed in from shell."""
@@ -175,11 +172,11 @@ def get_parser():
                         help='Define camera controls to start with spyglass. '
                              'Input as a long string.\n'
                              'Format: <control1>=<value1> <control2>=<value2>')
-    parser.add_argument('--list-controls', action='store_true', help='List available camera controls and exits.')
     parser.add_argument('-tf', '--tuning_filter', type=str, default=None, nargs='?', const="",
                         help='Set a tuning filter file name.')
     parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",
                         help='Set the directory to look for tuning filters.')
+    parser.add_argument('--list-controls', action='store_true', help='List available camera controls and exits.')
     parser.add_argument('-n', '--camera_num', type=int, default=0, help='Camera number to be used')
     return parser
 

@@ -8,7 +8,7 @@ A simple mjpeg server for Picamera2.
 With Spyglass you are able to stream videos from a camera that is supported by [libcamera](http://libcamera.org) like
 the [Raspberry Pi Camera Module 3](https://www.raspberrypi.com/products/camera-module-3/).
 
-Current version: 0.13.0
+Current version: 0.14.0
 
 ## Prerequisites
 
@@ -199,7 +199,7 @@ set up to check commit messages pre commit.
 
  You may get the following error message when you try to push to your branch:
  ```
-  fatal: ambiguous argument 'origin/HEAD..HEAD': unknown revision or path not in the working tree.
+ fatal: ambiguous argument 'origin/HEAD..HEAD': unknown revision or path not in the working tree.
  Use '--' to separate paths from revisions, like this:
  'git <command> [<revision>...] -- [<file>...]'
  ```
