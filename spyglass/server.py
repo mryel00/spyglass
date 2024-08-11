@@ -6,6 +6,7 @@ from http import server
 import io
 import logging
 import socketserver
+from requests import codes
 from http import server
 from threading import Condition
 from spyglass.url_parsing import check_urls_match, get_url_params
@@ -36,18 +37,18 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             processed_controls = process_controls(self.picam2, parsed_controls)
             self.picam2.set_controls(processed_controls)
             content = parse_dictionary_to_html_page(self.picam2, parsed_controls, processed_controls).encode('utf-8')
-            self.send_response(200)
+            self.send_response(codes.ok)
             self.send_header('Content-Type', 'text/html')
             self.send_header('Content-Length', len(content))
             self.end_headers()
             self.wfile.write(content)
         else:
-            self.send_error(404)
+            self.send_error(codes.not_found)
             self.end_headers()
 
     def start_streaming(self):
         try:
-            self.send_response(200)
+            self.send_response(codes.ok)
             self.send_default_headers()
             self.send_header('Content-Type', 'multipart/x-mixed-replace; boundary=FRAME')
             self.end_headers()
@@ -70,7 +71,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
 
     def send_snapshot(self):
         try:
-            self.send_response(200)
+            self.send_response(codes.ok)
             self.send_default_headers()
             frame = self.get_frame()
             if self.exif_header is None:
