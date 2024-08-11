@@ -4,6 +4,7 @@ import logging
 import socketserver
 from http import server
 import time
+import sys
 import uuid
 import asyncio
 import logging
@@ -81,19 +82,19 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 return
             content_length = int(self.headers['Content-Length'])
             offer_text = self.rfile.read(content_length).decode('utf-8')
+            #offer_text = offer_text.replace('sendrecv', 'recvonly')
             offer = RTCSessionDescription(sdp=offer_text, type='offer')
 
             pc = RTCPeerConnection()
             secret = uuid.uuid4()
-            @pc.on('iceconnectionstatechange')
-            async def on_iceconnectionstatechange():
-                print(f'ICE connection state {pc.iceConnectionState}')
             @pc.on('connectionstatechange')
             async def on_connectionstatechange():
                 print(f'Connection state {pc.connectionState}')
-                if pc.connectionState == "failed":
+                if pc.connectionState == 'failed':
                     await pc.close()
+                elif pc.connectionState == 'closed':
                     StreamingHandler.pcs.pop(str(secret))
+                    print(StreamingHandler.pcs)
             StreamingHandler.pcs[str(secret)] = pc
             pc.addTrack(self.media_track)
 
@@ -107,7 +108,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_response(codes.created)
             self.send_header("Content-Type", "application/sdp")
             self.send_header("ETag", "*")
-            
+
             self.send_header("ID", secret)
             self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Access-Control-Allow-Credentials', False)
@@ -115,13 +116,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_header("Accept-Patch", "application/trickle-ice-sdpfrag")
             self.headers['Link'] = self.get_ICE_servers()
             self.send_header("Location", f'/whep/{secret}')
+            self.send_header('Content-Length', len(pc.localDescription.sdp))
             self.end_headers()
-            self.wfile.write(bytes(answer.sdp, 'utf-8'))
-            while pc.connectionState != 'connected' or pc.connectionState != 'closed':
-                await asyncio.sleep(10)
-                print(StreamingHandler.pcs)
-        asyncio.run(post())
-    
+            self.wfile.write(bytes(pc.localDescription.sdp, 'utf-8'))
+        asyncio.run_coroutine_threadsafe(post(), StreamingHandler.loop).result()
+
     def do_PATCH(self):
         # Adapted from MediaMTX http_server.go
         # https://github.com/bluenviron/mediamtx/blob/main/internal/servers/webrtc/http_server.go#L248-L287
@@ -144,9 +143,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Access-Control-Allow-Credentials', False)
             self.end_headers()
-            while pc.connectionState != 'connected' or pc.connectionState != 'closed':
-                await asyncio.sleep(10)
-        asyncio.run(patch())
+        asyncio.run_coroutine_threadsafe(patch(), StreamingHandler.loop).result()
 
     def start_streaming(self):
         try:

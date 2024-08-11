@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from picamera2 import Picamera2
 import libcamera
+import threading
 from .. import logger
 from ..exif import create_exif_header
 from ..camera_options import process_controls
@@ -78,6 +79,8 @@ class Camera(ABC):
         else:
             streaming_handler.exif_header = None
         current_server = StreamingServer(address, streaming_handler)
+        t = threading.Thread(target=StreamingHandler.loop.run_forever)
+        t.start()
         current_server.serve_forever()
 
     @abstractmethod
