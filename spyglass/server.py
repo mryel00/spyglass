@@ -54,6 +54,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.end_headers()
 
     def do_OPTIONS(self):
+        # Adapted from MediaMTX http_server.go
+        # https://github.com/bluenviron/mediamtx/blob/main/internal/servers/webrtc/http_server.go#L173-L189
         def response_headers():
             self.send_response(codes.no_content)
             self.send_header('Access-Control-Allow-Origin', '*')
@@ -71,6 +73,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.end_headers()
 
     def do_POST(self):
+        # Adapted from MediaMTX http_server.go
+        # https://github.com/bluenviron/mediamtx/blob/main/internal/servers/webrtc/http_server.go#L191-L246
         async def post():
             if self.headers.get("Content-Type") != "application/sdp":
                 self.send_error(codes.bad)
@@ -119,6 +123,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         asyncio.run(post())
     
     def do_PATCH(self):
+        # Adapted from MediaMTX http_server.go
+        # https://github.com/bluenviron/mediamtx/blob/main/internal/servers/webrtc/http_server.go#L248-L287
         async def patch():
             if len(self.path.split('/')) < 3 or self.headers.get('Content-Type') != 'application/trickle-ice-sdpfrag':
                 self.send_response(codes.bad)
