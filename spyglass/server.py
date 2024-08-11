@@ -71,63 +71,76 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.end_headers()
 
     def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        offer_text = self.rfile.read(content_length).decode('utf-8')
-        offer = RTCSessionDescription(sdp=offer_text, type='offer')
+        async def post():
+            if self.headers.get("Content-Type") != "application/sdp":
+                self.send_error(codes.bad)
+                return
+            content_length = int(self.headers['Content-Length'])
+            offer_text = self.rfile.read(content_length).decode('utf-8')
+            offer = RTCSessionDescription(sdp=offer_text, type='offer')
 
-        pc = RTCPeerConnection()
-        @pc.on("icecandidate")
-        async def on_connectionstatechange():
-            print("Connection state is %s" % pc.connectionState)
-            if pc.connectionState == "failed":
-                await pc.close()
+            pc = RTCPeerConnection()
+            secret = uuid.uuid4()
+            @pc.on('iceconnectionstatechange')
+            async def on_iceconnectionstatechange():
+                print(f'ICE connection state {pc.iceConnectionState}')
+            @pc.on('connectionstatechange')
+            async def on_connectionstatechange():
+                print(f'Connection state {pc.connectionState}')
+                if pc.connectionState == "failed":
+                    await pc.close()
+                    StreamingHandler.pcs.pop(str(secret))
+            StreamingHandler.pcs[str(secret)] = pc
+            pc.addTrack(self.media_track)
 
-        asyncio.set_event_loop(StreamingHandler.loop)
-        pc.addTrack(self.media_track)
+            await pc.setRemoteDescription(offer)
+            answer = await pc.createAnswer()
+            await pc.setLocalDescription(answer)
 
-        asyncio.run(pc.setRemoteDescription(offer))
-        answer = asyncio.run(pc.createAnswer())
-        asyncio.run(pc.setLocalDescription(answer))
+            while pc.iceGatheringState != "complete":
+                await asyncio.sleep(1)
 
-        self.send_response(codes.created)
-        self.send_header("Content-Type", "application/sdp")
-        self.send_header("ETag", "*")
-        secret = uuid.uuid4()
-        self.send_header("ID", secret)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Credentials', False)
-        self.send_header("Access-Control-Expose-Headers", "ETag, ID, Accept-Patch, Link, Location")
-        self.send_header("Accept-Patch", "application/trickle-ice-sdpfrag")
-        self.headers['Link'] = self.get_ICE_servers()
-        self.send_header("Location", f'/whep/{secret}')
-        self.end_headers()
-        self.wfile.write(bytes(answer.sdp, 'utf-8'))
-
-        StreamingHandler.pcs[str(secret)] = pc
+            self.send_response(codes.created)
+            self.send_header("Content-Type", "application/sdp")
+            self.send_header("ETag", "*")
+            
+            self.send_header("ID", secret)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Credentials', False)
+            self.send_header("Access-Control-Expose-Headers", "ETag, ID, Accept-Patch, Link, Location")
+            self.send_header("Accept-Patch", "application/trickle-ice-sdpfrag")
+            self.headers['Link'] = self.get_ICE_servers()
+            self.send_header("Location", f'/whep/{secret}')
+            self.end_headers()
+            self.wfile.write(bytes(answer.sdp, 'utf-8'))
+            while pc.connectionState != 'connected' or pc.connectionState != 'closed':
+                await asyncio.sleep(10)
+                print(StreamingHandler.pcs)
+        asyncio.run(post())
     
     def do_PATCH(self):
-        if len(self.path.split('/')) < 3 or self.headers.get('Content-Type') != 'application/trickle-ice-sdpfrag':
-            return
-        content_length = int(self.headers['Content-Length'])
-        sdp_str = self.rfile.read(content_length).decode('utf-8')
-        candidates = self.parse_ice_candidates(sdp_str)
-        secret = self.path.split('/')[-1]
-        pc = StreamingHandler.pcs[secret]
-        for candidate in candidates:
-            asyncio.run(pc.addIceCandidate(candidate))
-        # self.candidates = candidates
-        # cand_sdp = '\r\n'.join([sdp.candidate_to_sdp(cand) for cand in candidates]) + '\r\n'
-        # offer = asyncio.run(pc.createOffer())
-        # offer.sdp += cand_sdp
-        # asyncio.set_event_loop(StreamingHandler.loop)
-        # asyncio.run(pc.setLocalDescription(offer))
-        
-        self.send_response(codes.no_content)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header("Access-Control-Allow-Credentials", False)
-        self.end_headers()
+        async def patch():
+            if len(self.path.split('/')) < 3 or self.headers.get('Content-Type') != 'application/trickle-ice-sdpfrag':
+                self.send_response(codes.bad)
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Credentials', False)
+                self.end_headers()
+                return
+            content_length = int(self.headers['Content-Length'])
+            sdp_str = self.rfile.read(content_length).decode('utf-8')
+            candidates = self.parse_ice_candidates(sdp_str)
+            secret = self.path.split('/')[-1]
+            pc = StreamingHandler.pcs[secret]
+            for candidate in candidates:
+                await pc.addIceCandidate(candidate)
 
-        pc.start()
+            self.send_response(codes.no_content)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Credentials', False)
+            self.end_headers()
+            while pc.connectionState != 'connected' or pc.connectionState != 'closed':
+                await asyncio.sleep(10)
+        asyncio.run(patch())
 
     def start_streaming(self):
         try:
