@@ -9,6 +9,7 @@ from ..server import StreamingServer, StreamingHandler
 class Camera(ABC):
     def __init__(self, picam2: Picamera2):
         self.picam2 = picam2
+        self.media_track = PicameraStreamTrack(self.picam2)
 
     def create_controls(self, fps: int, autofocus: str, lens_position: float, autofocus_speed: str):
         controls = {}
@@ -68,6 +69,7 @@ class Camera(ABC):
         logger.info('Controls endpoint: %s', '/controls')
         address = (bind_address, port)
         streaming_handler.picam2 = self.picam2
+        streaming_handler.media_track = self.media_track
         streaming_handler.get_frame = get_frame
         streaming_handler.stream_url = stream_url
         streaming_handler.snapshot_url = snapshot_url
@@ -90,3 +92,25 @@ class Camera(ABC):
     @abstractmethod
     def stop(self):
         pass
+
+import av
+import time
+
+from aiortc import MediaStreamTrack
+
+from fractions import Fraction
+
+class PicameraStreamTrack(MediaStreamTrack):
+    kind = "video"
+
+    def __init__(self, cam):
+        super().__init__()
+        self.cam = cam
+
+    async def recv(self):
+        img = self.cam.capture_array()
+        pts = time.time() * 1000000
+        new_frame = av.VideoFrame.from_ndarray(img, format='rgba')
+        new_frame.pts = int(pts)
+        new_frame.time_base = Fraction(1,1000000)
+        return new_frame

@@ -3,24 +3,29 @@
 import logging
 import socketserver
 from http import server
-import io
+import time
+import uuid
+import asyncio
 import logging
 import socketserver
 from requests import codes
 from http import server
-from threading import Condition
 from spyglass.url_parsing import check_urls_match, get_url_params
-from spyglass.exif import create_exif_header
 from spyglass.camera_options import parse_dictionary_to_html_page, process_controls
+from aiortc import RTCSessionDescription, RTCPeerConnection, RTCIceCandidate, sdp
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
+    pcs: dict[uuid.UUID, RTCPeerConnection] = {}
+    loop = asyncio.new_event_loop()
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.picam2 = None
+        self.media_track = None
         self.exif_header = None
         self.stream_url = None
         self.snapshot_url = None
@@ -42,9 +47,87 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_header('Content-Length', len(content))
             self.end_headers()
             self.wfile.write(content)
+        elif check_urls_match('/webrtc', self.path):
+            pass
         else:
             self.send_error(codes.not_found)
             self.end_headers()
+
+    def do_OPTIONS(self):
+        def response_headers():
+            self.send_response(codes.no_content)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Credentials', False)
+            self.send_header('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PATCH, DELETE')
+            self.send_header('Access-Control-Allow-Headers', 'Authorization, Content-Type, If-Match')
+
+        if self.headers.get("Access-Control-Request-Method") != None:
+            response_headers()
+            self.end_headers()
+        elif check_urls_match('/whip', self.path) or check_urls_match('/whep', self.path):
+            response_headers()
+            self.send_header('Access-Control-Expose-Headers', 'Link')
+            self.headers['Link'] = self.get_ICE_servers()
+            self.end_headers()
+
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        offer_text = self.rfile.read(content_length).decode('utf-8')
+        offer = RTCSessionDescription(sdp=offer_text, type='offer')
+
+        pc = RTCPeerConnection()
+        @pc.on("icecandidate")
+        async def on_connectionstatechange():
+            print("Connection state is %s" % pc.connectionState)
+            if pc.connectionState == "failed":
+                await pc.close()
+
+        asyncio.set_event_loop(StreamingHandler.loop)
+        pc.addTrack(self.media_track)
+
+        asyncio.run(pc.setRemoteDescription(offer))
+        answer = asyncio.run(pc.createAnswer())
+        asyncio.run(pc.setLocalDescription(answer))
+
+        self.send_response(codes.created)
+        self.send_header("Content-Type", "application/sdp")
+        self.send_header("ETag", "*")
+        secret = uuid.uuid4()
+        self.send_header("ID", secret)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Credentials', False)
+        self.send_header("Access-Control-Expose-Headers", "ETag, ID, Accept-Patch, Link, Location")
+        self.send_header("Accept-Patch", "application/trickle-ice-sdpfrag")
+        self.headers['Link'] = self.get_ICE_servers()
+        self.send_header("Location", f'/whep/{secret}')
+        self.end_headers()
+        self.wfile.write(bytes(answer.sdp, 'utf-8'))
+
+        StreamingHandler.pcs[str(secret)] = pc
+    
+    def do_PATCH(self):
+        if len(self.path.split('/')) < 3 or self.headers.get('Content-Type') != 'application/trickle-ice-sdpfrag':
+            return
+        content_length = int(self.headers['Content-Length'])
+        sdp_str = self.rfile.read(content_length).decode('utf-8')
+        candidates = self.parse_ice_candidates(sdp_str)
+        secret = self.path.split('/')[-1]
+        pc = StreamingHandler.pcs[secret]
+        for candidate in candidates:
+            asyncio.run(pc.addIceCandidate(candidate))
+        # self.candidates = candidates
+        # cand_sdp = '\r\n'.join([sdp.candidate_to_sdp(cand) for cand in candidates]) + '\r\n'
+        # offer = asyncio.run(pc.createOffer())
+        # offer.sdp += cand_sdp
+        # asyncio.set_event_loop(StreamingHandler.loop)
+        # asyncio.run(pc.setLocalDescription(offer))
+        
+        self.send_response(codes.no_content)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header("Access-Control-Allow-Credentials", False)
+        self.end_headers()
+
+        pc.start()
 
     def start_streaming(self):
         try:
@@ -96,3 +179,25 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
     def send_jpeg_content_headers(self, frame, extra_len=0):
         self.send_header('Content-Type', 'image/jpeg')
         self.send_header('Content-Length', str(len(frame) + extra_len))
+
+    def get_ICE_servers(self):
+        return None
+
+    def parse_ice_candidates(self, sdp_message):
+        sdp_message = sdp_message.replace('\\r\\n', '\r\n')
+
+        lines = sdp_message.splitlines()
+
+        candidates = []
+        cand_str = 'a=candidate:'
+        mid_str = 'a=mid:'
+        mid = ''
+        for line in lines:
+            if line.startswith(mid_str):
+                mid = line[len(mid_str):]
+            elif line.startswith(cand_str):
+                candidate_str = line[len(cand_str):]
+                candidate = sdp.candidate_from_sdp(candidate_str)
+                candidate.sdpMid = mid
+                candidates.append(candidate)
+        return candidates
