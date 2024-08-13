@@ -35,9 +35,9 @@ def main(args=None):
     if parsed_args.list_controls:
         controls_str = camera_options.get_libcamera_controls_string(parsed_args.camera_num)
         if not controls_str:
-            logger.warning(f"Camera {parsed_args.camera_num} not found")
+            print(f"Camera {parsed_args.camera_num} not found")
         else:
-            logger.info('Available controls:\n'+controls_str)
+            print('Available controls:\n'+controls_str)
         return
 
     width, height = split_resolution(parsed_args.resolution)
