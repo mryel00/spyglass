@@ -1,10 +1,12 @@
+import libcamera
+
 from abc import ABC, abstractmethod
 from picamera2 import Picamera2
-import libcamera
-from .. import logger
-from ..exif import create_exif_header
-from ..camera_options import process_controls
-from ..server import StreamingServer, StreamingHandler
+
+from spyglass import logger
+from spyglass.exif import create_exif_header
+from spyglass.camera_options import process_controls
+from spyglass.server import StreamingServer, StreamingHandler
 
 class Camera(ABC):
     def __init__(self, picam2: Picamera2):

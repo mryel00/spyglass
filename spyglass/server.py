@@ -2,13 +2,9 @@
 
 import socketserver
 
-from . import logger
 from http import server
-import io
-import logging
-import socketserver
-from http import server
-from threading import Condition
+
+from spyglass import logger
 from spyglass.url_parsing import check_urls_match, get_url_params
 from spyglass.exif import create_exif_header
 from spyglass.camera_options import parse_dictionary_to_html_page, process_controls

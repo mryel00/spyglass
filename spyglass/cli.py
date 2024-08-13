@@ -8,10 +8,10 @@ import re
 import sys
 import libcamera
 
-from . import camera_options, logger
-from .exif import option_to_exif_orientation
-from .__version__ import __version__
-from .camera import init_camera
+from spyglass import camera_options, logger
+from spyglass.exif import option_to_exif_orientation
+from spyglass.__version__ import __version__
+from spyglass.camera import init_camera
 
 
 MAX_WIDTH = 1920

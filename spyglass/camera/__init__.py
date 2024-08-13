@@ -1,8 +1,8 @@
-from .camera import Camera
-from .csi import CSI
-from .usb import USB
-
 from picamera2 import Picamera2
+
+from spyglass.camera.camera import Camera
+from spyglass.camera.csi import CSI
+from spyglass.camera.usb import USB
 
 def init_camera(
         camera_num: int,

@@ -1,12 +1,11 @@
 import io
-import libcamera
 
 from picamera2.encoders import MJPEGEncoder
 from picamera2.outputs import FileOutput
 from threading import Condition
 
-from . import camera
-from ..server import StreamingHandler
+from spyglass import camera
+from spyglass.server import StreamingHandler
 
 class CSI(camera.Camera):
     def start_and_run_server(self,
@@ -26,7 +25,7 @@ class CSI(camera.Camera):
                     self.frame = buf
                     self.condition.notify_all()
         output = StreamingOutput()
-        def get_frame(self):
+        def get_frame(inner_self):
             with output.condition:
                 output.condition.wait()
                 return output.frame
