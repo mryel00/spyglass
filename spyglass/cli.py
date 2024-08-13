@@ -2,14 +2,13 @@
 
 Parse command line arguments in, invoke server.
 """
+
 import argparse
-import logging
 import re
 import sys
-
 import libcamera
 
-from . import camera_options
+from . import camera_options, logger
 from .exif import option_to_exif_orientation
 from .__version__ import __version__
 from .camera import init_camera
@@ -26,7 +25,7 @@ def main(args=None):
     becomes sys.exit(main()).
     The __main__ entry point similarly wraps sys.exit().
     """
-    logging.info(f"Spyglass {__version__}")
+    logger.info(f"Spyglass {__version__}")
 
     if args is None:
         args = sys.argv[1:]

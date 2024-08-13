@@ -22,7 +22,7 @@ class Camera(ABC):
             if autofocus == libcamera.controls.AfModeEnum.Manual:
                 controls['LensPosition'] = lens_position
         else:
-            print('Attached camera does not support autofocus')
+            logger.warning('Attached camera does not support autofocus')
 
         return controls
 

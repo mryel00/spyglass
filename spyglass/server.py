@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
-import logging
 import socketserver
+
+from . import logger
 from http import server
 import io
 import logging
@@ -66,7 +67,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     self.wfile.write(frame[2:])
                     self.wfile.write(b'\r\n')
         except Exception as e:
-            logging.warning('Removed streaming client %s: %s', self.client_address, str(e))
+            logger.warning('Removed streaming client %s: %s', self.client_address, str(e))
 
     def send_snapshot(self):
         try:
@@ -83,7 +84,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 self.wfile.write(self.exif_header)
                 self.wfile.write(frame[2:])
         except Exception as e:
-            logging.warning(
+            logger.warning(
                 'Removed client %s: %s',
                 self.client_address, str(e))
 
