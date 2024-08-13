@@ -82,7 +82,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 return
             content_length = int(self.headers['Content-Length'])
             offer_text = self.rfile.read(content_length).decode('utf-8')
-            #offer_text = offer_text.replace('sendrecv', 'recvonly')
             offer = RTCSessionDescription(sdp=offer_text, type='offer')
 
             pc = RTCPeerConnection()
