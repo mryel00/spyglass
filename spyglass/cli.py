@@ -32,13 +32,18 @@ def main(args=None):
 
     parsed_args = get_args(args)
 
+    if parsed_args.list_controls:
+        controls_str = camera_options.get_libcamera_controls_string(parsed_args.camera_num)
+        if not controls_str:
+            logger.warning(f"Camera {parsed_args.camera_num} not found")
+        else:
+            logger.info('Available controls:\n'+controls_str)
+        return
+
     width, height = split_resolution(parsed_args.resolution)
     controls = parsed_args.controls
     if parsed_args.controls_string:
         controls += [c.split('=') for c in parsed_args.controls_string.split(',')]
-    if parsed_args.list_controls:
-        print('Available controls:\n'+camera_options.get_libcamera_controls_string(0))
-        return
 
     cam = init_camera(
         parsed_args.camera_num,
@@ -176,7 +181,7 @@ def get_parser():
     parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",
                         help='Set the directory to look for tuning filters.')
     parser.add_argument('--list-controls', action='store_true', help='List available camera controls and exits.')
-    parser.add_argument('-n', '--camera_num', type=int, default=0, help='Camera number to be used')
+    parser.add_argument('-n', '--camera_num', type=int, default=0, help='Camera number to be used (Works with --list-controls)')
     return parser
 
 # endregion cli args
