@@ -1,3 +1,9 @@
+## v0.15.0 (2024-08-14)
+
+### Feat
+
+- Add basic USB-Camera support (#10)
+
 ## v0.14.0 (2024-06-05)
 
 ### Feat
