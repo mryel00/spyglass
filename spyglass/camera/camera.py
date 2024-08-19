@@ -1,11 +1,13 @@
-from abc import ABC, abstractmethod
-from picamera2 import Picamera2
 import libcamera
 import threading
-from .. import logger
-from ..exif import create_exif_header
-from ..camera_options import process_controls
-from ..server import StreamingServer, StreamingHandler
+
+from abc import ABC, abstractmethod
+from picamera2 import Picamera2
+
+from spyglass import logger
+from spyglass.exif import create_exif_header
+from spyglass.camera_options import process_controls
+from spyglass.server import StreamingServer, StreamingHandler
 
 class Camera(ABC):
     def __init__(self, picam2: Picamera2):
@@ -24,7 +26,7 @@ class Camera(ABC):
             if autofocus == libcamera.controls.AfModeEnum.Manual:
                 controls['LensPosition'] = lens_position
         else:
-            print('Attached camera does not support autofocus')
+            logger.warning('Attached camera does not support autofocus')
 
         return controls
 

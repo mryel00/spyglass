@@ -2,17 +2,16 @@
 
 Parse command line arguments in, invoke server.
 """
+
 import argparse
-import logging
 import re
 import sys
-
 import libcamera
 
-from . import camera_options
-from .exif import option_to_exif_orientation
-from .__version__ import __version__
-from .camera import init_camera
+from spyglass import camera_options, logger
+from spyglass.exif import option_to_exif_orientation
+from spyglass.__version__ import __version__
+from spyglass.camera import init_camera
 
 
 MAX_WIDTH = 1920
@@ -26,20 +25,25 @@ def main(args=None):
     becomes sys.exit(main()).
     The __main__ entry point similarly wraps sys.exit().
     """
-    logging.info(f"Spyglass {__version__}")
+    logger.info(f"Spyglass {__version__}")
 
     if args is None:
         args = sys.argv[1:]
 
     parsed_args = get_args(args)
 
+    if parsed_args.list_controls:
+        controls_str = camera_options.get_libcamera_controls_string(parsed_args.camera_num)
+        if not controls_str:
+            print(f"Camera {parsed_args.camera_num} not found")
+        else:
+            print('Available controls:\n'+controls_str)
+        return
+
     width, height = split_resolution(parsed_args.resolution)
     controls = parsed_args.controls
     if parsed_args.controls_string:
         controls += [c.split('=') for c in parsed_args.controls_string.split(',')]
-    if parsed_args.list_controls:
-        print('Available controls:\n'+camera_options.get_libcamera_controls_string(0))
-        return
 
     cam = init_camera(
         parsed_args.camera_num,
@@ -177,7 +181,7 @@ def get_parser():
     parser.add_argument('-tfd', '--tuning_filter_dir', type=str, default=None, nargs='?',const="",
                         help='Set the directory to look for tuning filters.')
     parser.add_argument('--list-controls', action='store_true', help='List available camera controls and exits.')
-    parser.add_argument('-n', '--camera_num', type=int, default=0, help='Camera number to be used')
+    parser.add_argument('-n', '--camera_num', type=int, default=0, help='Camera number to be used (Works with --list-controls)')
     return parser
 
 # endregion cli args

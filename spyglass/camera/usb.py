@@ -1,9 +1,5 @@
-import libcamera
-
-from . import camera
-
-from ..server import StreamingHandler
-from ..camera_options import process_controls
+from spyglass import camera
+from spyglass.server import StreamingHandler
 
 class USB(camera.Camera):
     def start_and_run_server(self,

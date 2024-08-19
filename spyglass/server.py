@@ -1,19 +1,18 @@
 #!/usr/bin/python3
 
-import logging
 import socketserver
-from http import server
-import time
-import sys
+
 import uuid
 import asyncio
-import logging
 import socketserver
+
 from requests import codes
 from http import server
+from aiortc import RTCSessionDescription, RTCPeerConnection, sdp
+
+from spyglass import logger
 from spyglass.url_parsing import check_urls_match, get_url_params
 from spyglass.camera_options import parse_dictionary_to_html_page, process_controls
-from aiortc import RTCSessionDescription, RTCPeerConnection, RTCIceCandidate, sdp
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
@@ -165,7 +164,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     self.wfile.write(frame[2:])
                     self.wfile.write(b'\r\n')
         except Exception as e:
-            logging.warning('Removed streaming client %s: %s', self.client_address, str(e))
+            logger.warning('Removed streaming client %s: %s', self.client_address, str(e))
 
     def send_snapshot(self):
         try:
@@ -182,7 +181,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 self.wfile.write(self.exif_header)
                 self.wfile.write(frame[2:])
         except Exception as e:
-            logging.warning(
+            logger.warning(
                 'Removed client %s: %s',
                 self.client_address, str(e))
 
