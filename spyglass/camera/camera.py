@@ -67,11 +67,11 @@ class Camera(ABC):
                     stream_url='/stream',
                     snapshot_url='/snapshot',
                     orientation_exif=0):
-        logger.info('Server listening on %s:%d', bind_address, port)
-        logger.info('Streaming endpoint: %s', stream_url)
-        logger.info('Snapshot endpoint: %s', snapshot_url)
-        logger.info('Controls endpoint: %s', '/controls')
-        logger.info('WebRTC endpoint: %s', '/webrtc')
+        logger.info(f'Server listening on {bind_address}:{port}')
+        logger.info(f'Streaming endpoint: {stream_url}')
+        logger.info(f'Snapshot endpoint: {snapshot_url}')
+        logger.info(f'Controls endpoint: /controls')
+        logger.info(f'WebRTC endpoint: /webrtc')
         address = (bind_address, port)
         streaming_handler.picam2 = self.picam2
         streaming_handler.media_track = self.media_track
