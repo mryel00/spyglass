@@ -1,5 +1,5 @@
 from spyglass import camera
-from spyglass.server import StreamingHandler
+from spyglass.server.http_server import StreamingHandler
 
 class USB(camera.Camera):
     def start_and_run_server(self,

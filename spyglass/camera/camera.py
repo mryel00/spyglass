@@ -7,7 +7,8 @@ from picamera2 import Picamera2
 from spyglass import logger
 from spyglass.exif import create_exif_header
 from spyglass.camera_options import process_controls
-from spyglass.server import StreamingServer, StreamingHandler
+from spyglass.server.http_server import StreamingServer, StreamingHandler
+from spyglass.server.webrtc_whep import PicameraStreamTrack
 
 class Camera(ABC):
     def __init__(self, picam2: Picamera2):
@@ -17,7 +18,7 @@ class Camera(ABC):
     def create_controls(self, fps: int, autofocus: str, lens_position: float, autofocus_speed: str):
         controls = {}
 
-        if 'FrameRate' in self.picam2.camera_controls:
+        if 'FrameDurationLimits' in self.picam2.camera_controls:
             controls['FrameRate'] = fps
 
         if 'AfMode' in self.picam2.camera_controls:
@@ -81,8 +82,8 @@ class Camera(ABC):
         else:
             streaming_handler.exif_header = None
         current_server = StreamingServer(address, streaming_handler)
-        t = threading.Thread(target=StreamingHandler.loop.run_forever)
-        t.start()
+        async_loop = threading.Thread(target=StreamingHandler.loop.run_forever)
+        async_loop.start()
         current_server.serve_forever()
 
     @abstractmethod
@@ -97,25 +98,3 @@ class Camera(ABC):
     @abstractmethod
     def stop(self):
         pass
-
-import av
-import time
-
-from aiortc import MediaStreamTrack
-
-from fractions import Fraction
-
-class PicameraStreamTrack(MediaStreamTrack):
-    kind = "video"
-
-    def __init__(self, cam):
-        super().__init__()
-        self.cam = cam
-
-    async def recv(self):
-        img = self.cam.capture_array()
-        pts = time.time() * 1000000
-        new_frame = av.VideoFrame.from_ndarray(img, format='rgba')
-        new_frame.pts = int(pts)
-        new_frame.time_base = Fraction(1,1000000)
-        return new_frame
