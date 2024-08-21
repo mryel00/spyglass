@@ -71,6 +71,7 @@ class Camera(ABC):
         logger.info('Streaming endpoint: %s', stream_url)
         logger.info('Snapshot endpoint: %s', snapshot_url)
         logger.info('Controls endpoint: %s', '/controls')
+        logger.info('WebRTC endpoint: %s', '/webrtc')
         address = (bind_address, port)
         streaming_handler.picam2 = self.picam2
         streaming_handler.media_track = self.media_track
