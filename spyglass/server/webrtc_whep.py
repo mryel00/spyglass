@@ -145,7 +145,7 @@ class PicameraStreamTrack(MediaStreamTrack):
                 async with self.condition:
                     self.img = self.cam.capture_array()
                     self.condition.notify_all()
-                    await asyncio.sleep(0)
+                    await asyncio.sleep(0.01)
             else:
                 await asyncio.sleep(0.5)
 
