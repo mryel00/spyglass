@@ -134,9 +134,10 @@ class PicameraStreamTrack(MediaStreamTrack):
         super().__init__()
         self.cam = cam
         self.img = None
-        self.condition = asyncio.Condition()
         from spyglass.server.http_server import StreamingHandler
         StreamingHandler.loop.create_task(self.get_img())
+        asyncio.set_event_loop(StreamingHandler.loop)
+        self.condition = asyncio.Condition()
     
     async def get_img(self):
         while True:
