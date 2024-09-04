@@ -3,6 +3,7 @@ import asyncio
 
 from requests import codes
 from aiortc import RTCSessionDescription, RTCPeerConnection, sdp
+from aiortc.rtcrtpsender import RTCRtpSender
 
 from spyglass.url_parsing import check_urls_match
 
@@ -57,7 +58,12 @@ async def do_POST_async(handler: 'StreamingHandler'):
             pcs.pop(str(secret))
             print(f'{len(pcs)} connections still open.')
     pcs[str(secret)] = pc
-    pc.addTrack(handler.media_track)
+    sender = pc.addTrack(handler.media_track)
+    codecs = RTCRtpSender.getCapabilities('video').codecs
+    transceiver = next(t for t in pc.getTransceivers() if t.sender == sender)
+    transceiver.setCodecPreferences(
+        [codec for codec in codecs if codec.mimeType == 'video/H264']
+    )
 
     await pc.setRemoteDescription(offer)
     answer = await pc.createAnswer()
