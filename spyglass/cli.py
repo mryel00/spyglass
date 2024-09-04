@@ -158,7 +158,7 @@ def get_parser():
     parser.add_argument('-fv', '--flip_vertical', action='store_true',
                         help='Mirror the image vertically (sensor level)')
     parser.add_argument('-or', '--orientation_exif', type=orientation_type, default='h',
-                        help='Set the image orientation using an EXIF header:\n'
+                        help='Set the image orientation using an EXIF header. This does not work with WebRTC:\n'
                              '  h      - Horizontal (normal)\n'
                              '  mh     - Mirror horizontal\n'
                              '  r180   - Rotate 180\n'
