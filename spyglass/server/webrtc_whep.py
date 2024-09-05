@@ -128,39 +128,28 @@ def parse_ice_candidates(sdp_message):
         return candidates
 
 import av
-import time
 
 from aiortc import MediaStreamTrack
+from picamera2.outputs import Output
 
 from fractions import Fraction
 
-class PicameraStreamTrack(MediaStreamTrack):
+class PicameraStreamTrack(MediaStreamTrack, Output):
     kind = "video"
-    def __init__(self, cam):
+    def __init__(self):
         super().__init__()
-        self.cam = cam
         self.img = None
-        from spyglass.server.http_server import StreamingHandler
-        StreamingHandler.loop.create_task(self.get_img())
-        asyncio.set_event_loop(StreamingHandler.loop)
-        self.condition = asyncio.Condition()
-    
-    async def get_img(self):
-        while True:
-            if len(pcs) > 0:
-                async with self.condition:
-                    self.img = self.cam.capture_array()
-                    self.condition.notify_all()
-                    await asyncio.sleep(0.01)
-            else:
-                await asyncio.sleep(0.5)
+        self.pts = 0
+        self.keyframe = False
+
+    def outputframe(self, frame, keyframe=True, timestamp=None):
+        self.img = frame
+        self.keyframe = keyframe
+        self.pts = timestamp
 
     async def recv(self):
-        async with self.condition:
-            await self.condition.wait()
-            img = self.img
-            pts = time.time() * 1000000
-            new_frame = av.VideoFrame.from_ndarray(img, format='rgba')
-            new_frame.pts = int(pts)
-            new_frame.time_base = Fraction(1,1000000)
-            return new_frame
+        await asyncio.sleep(0.01)
+        packet = av.packet.Packet(self.img)
+        packet.pts = self.pts
+        packet.time_base = Fraction(1,1000000)
+        return packet

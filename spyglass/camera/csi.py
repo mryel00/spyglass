@@ -1,6 +1,6 @@
 import io
 
-from picamera2.encoders import MJPEGEncoder
+from picamera2.encoders import MJPEGEncoder, H264Encoder
 from picamera2.outputs import FileOutput
 from threading import Condition
 
@@ -30,7 +30,9 @@ class CSI(camera.Camera):
                 output.condition.wait()
                 return output.frame
 
-        self.picam2.start_recording(MJPEGEncoder(), FileOutput(output))
+        self.picam2.start()
+        self.picam2.start_encoder(MJPEGEncoder(), FileOutput(output))
+        self.picam2.start_recording(H264Encoder(), self.media_track)
 
         self._run_server(
             bind_address,

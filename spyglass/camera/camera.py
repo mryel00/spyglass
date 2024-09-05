@@ -13,7 +13,7 @@ from spyglass.server.webrtc_whep import PicameraStreamTrack
 class Camera(ABC):
     def __init__(self, picam2: Picamera2):
         self.picam2 = picam2
-        self.media_track = PicameraStreamTrack(self.picam2)
+        self.media_track = PicameraStreamTrack()
 
     def create_controls(self, fps: int, autofocus: str, lens_position: float, autofocus_speed: str):
         controls = {}
