@@ -131,6 +131,7 @@ import av
 
 from aiortc import MediaStreamTrack
 from picamera2.outputs import Output
+from queue import Queue
 
 from fractions import Fraction
 
@@ -138,18 +139,17 @@ class PicameraStreamTrack(MediaStreamTrack, Output):
     kind = "video"
     def __init__(self):
         super().__init__()
-        self.img = None
-        self.pts = 0
-        self.keyframe = False
+        self.img_queue = Queue()
 
     def outputframe(self, frame, keyframe=True, timestamp=None):
-        self.img = frame
-        self.keyframe = keyframe
-        self.pts = timestamp
+        self.img_queue.put((frame, keyframe, timestamp))
 
     async def recv(self):
-        await asyncio.sleep(0.01)
-        packet = av.packet.Packet(self.img)
-        packet.pts = self.pts
+        while self.img_queue.empty():
+            await asyncio.sleep(0.02)
+        img, keyframe, pts = self.img_queue.get()
+        packet = av.packet.Packet(img)
+        packet.pts = pts
         packet.time_base = Fraction(1,1000000)
+        packet.is_keyframe = keyframe
         return packet
