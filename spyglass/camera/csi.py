@@ -30,9 +30,9 @@ class CSI(camera.Camera):
                 output.condition.wait()
                 return output.frame
 
-        self.picam2.start()
         self.picam2.start_encoder(MJPEGEncoder(), FileOutput(output))
         self.picam2.start_encoder(H264Encoder(), self.media_track)
+        self.picam2.start()
 
         self._run_server(
             bind_address,
