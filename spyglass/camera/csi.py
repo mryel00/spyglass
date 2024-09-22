@@ -32,7 +32,7 @@ class CSI(camera.Camera):
 
         self.picam2.start()
         self.picam2.start_encoder(MJPEGEncoder(), FileOutput(output))
-        self.picam2.start_recording(H264Encoder(), self.media_track)
+        self.picam2.start_encoder(H264Encoder(), self.media_track)
 
         self._run_server(
             bind_address,
