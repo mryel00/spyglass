@@ -4,6 +4,7 @@ import asyncio
 from requests import codes
 from aiortc import RTCSessionDescription, RTCPeerConnection, sdp
 from aiortc.rtcrtpsender import RTCRtpSender
+from aiortc.contrib.media import MediaRelay
 
 from spyglass.url_parsing import check_urls_match
 
@@ -13,6 +14,7 @@ if TYPE_CHECKING:
     from spyglass.server.http_server import StreamingHandler
 
 pcs: dict[uuid.UUID, RTCPeerConnection] = {}
+media_relay = MediaRelay()
 
 def send_default_headers(response_code: int, handler: 'StreamingHandler'):
     handler.send_response(response_code)
@@ -58,7 +60,8 @@ async def do_POST_async(handler: 'StreamingHandler'):
             pcs.pop(str(secret))
             print(f'{len(pcs)} connections still open.')
     pcs[str(secret)] = pc
-    sender = pc.addTrack(handler.media_track)
+    track = media_relay.subscribe(handler.media_track)
+    sender = pc.addTrack(track)
     codecs = RTCRtpSender.getCapabilities('video').codecs
     transceiver = next(t for t in pc.getTransceivers() if t.sender == sender)
     transceiver.setCodecPreferences(
@@ -130,24 +133,34 @@ def parse_ice_candidates(sdp_message):
 import av
 
 from aiortc import MediaStreamTrack
-from picamera2.outputs import Output
-from queue import Queue
-
+from collections import deque
 from fractions import Fraction
+from picamera2.outputs import Output
 
 class PicameraStreamTrack(MediaStreamTrack, Output):
     kind = "video"
     def __init__(self):
         super().__init__()
-        self.img_queue = Queue()
+        self.img_queue = deque(maxlen=60)
+        from spyglass.server.http_server import StreamingHandler
+        asyncio.set_event_loop(StreamingHandler.loop)
+        self.condition = asyncio.Condition()
 
     def outputframe(self, frame, keyframe=True, timestamp=None):
-        self.img_queue.put((frame, keyframe, timestamp))
+        from spyglass.server.http_server import StreamingHandler
+        asyncio.run_coroutine_threadsafe(self.put_frame(frame, keyframe, timestamp), StreamingHandler.loop)
+
+    async def put_frame(self, frame, keyframe=True, timestamp=None):
+        async with self.condition:
+            self.img_queue.append((frame, keyframe, timestamp))
+            self.condition.notify_all()
 
     async def recv(self):
-        while self.img_queue.empty():
-            await asyncio.sleep(0.02)
-        img, keyframe, pts = self.img_queue.get()
+        async with self.condition:
+            def not_empty():
+                return len(self.img_queue) > 0
+            await self.condition.wait_for(not_empty)
+        img, keyframe, pts = self.img_queue.popleft()
         packet = av.packet.Packet(img)
         packet.pts = pts
         packet.time_base = Fraction(1,1000000)
